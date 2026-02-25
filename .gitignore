@@ -1,0 +1,13 @@
+# ---> default-ignore
+# File di configurazione
+config.ini
+
+# File di log
+logs/*
+
+# File di test
+test_*
+
+# File fa portare sempre
+!.gitkeep
+
