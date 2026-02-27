@@ -305,6 +305,26 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
+  /// Recupera la lista dei team
+  Future<List<Map<String, dynamic>>> getTeams() async {
+    if (_apiService == null) return [];
+    try {
+      return await _apiService!.getTeams();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  /// Recupera i membri di un team
+  Future<List<Map<String, dynamic>>> getTeamMembers(String teamId) async {
+    if (_apiService == null) return [];
+    try {
+      return await _apiService!.getTeamMembers(teamId);
+    } catch (_) {
+      return [];
+    }
+  }
+
   /// Reset del provider
   void reset() {
     _tickets = [];

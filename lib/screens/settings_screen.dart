@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
@@ -77,10 +78,18 @@ class SettingsScreen extends StatelessWidget {
           Card(
             child: Column(
               children: [
-                const ListTile(
-                  leading: Icon(Icons.info_outline),
-                  title: Text('Versione'),
-                  subtitle: Text('1.0.0'),
+                FutureBuilder<PackageInfo>(
+                  future: PackageInfo.fromPlatform(),
+                  builder: (context, snapshot) {
+                    final version = snapshot.hasData
+                        ? snapshot.data!.version
+                        : '...';
+                    return ListTile(
+                      leading: const Icon(Icons.info_outline),
+                      title: const Text('Versione'),
+                      subtitle: Text(version),
+                    );
+                  },
                 ),
                 const Divider(height: 1),
                 ListTile(

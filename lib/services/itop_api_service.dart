@@ -208,6 +208,7 @@ class ITopApiService {
       data: {
         'class': 'UserRequest',
         'key': ticketId,
+        'comment': 'Log pubblico aggiunto da iTopMobile',
         'output_fields': 'ref,status,public_log',
         'fields': {
           'public_log': {
@@ -229,6 +230,7 @@ class ITopApiService {
       data: {
         'class': 'UserRequest',
         'key': ticketId,
+        'comment': 'Log privato aggiunto da iTopMobile',
         'output_fields': 'ref,status,private_log',
         'fields': {
           'private_log': {
@@ -252,11 +254,10 @@ class ITopApiService {
       'class': 'UserRequest',
       'key': ticketId,
       'stimulus': stimulus,
+      'comment': 'Transizione eseguita da iTopMobile',
       'output_fields': 'ref,status',
+      'fields': fields ?? {},
     };
-    if (fields != null && fields.isNotEmpty) {
-      data['fields'] = fields;
-    }
     return await _callApi(operation: 'core/apply_stimulus', data: data);
   }
 
@@ -270,6 +271,7 @@ class ITopApiService {
       data: {
         'class': 'UserRequest',
         'key': ticketId,
+        'comment': 'Aggiornamento da iTopMobile',
         'output_fields': 'ref,status',
         'fields': fields,
       },
@@ -305,6 +307,48 @@ class ITopApiService {
       },
     );
     return _parseObjectList(result);
+  }
+
+  /// Recupera la lista dei team
+  Future<List<Map<String, dynamic>>> getTeams() async {
+    final result = await _callApi(
+      operation: 'core/get',
+      data: {
+        'class': 'Team',
+        'key': 'SELECT Team',
+        'output_fields': 'name',
+      },
+    );
+    return _parseObjectList(result);
+  }
+
+  /// Recupera i membri (Person) di un team
+  Future<List<Map<String, dynamic>>> getTeamMembers(String teamId) async {
+    final result = await _callApi(
+      operation: 'core/get',
+      data: {
+        'class': 'lnkPersonToTeam',
+        'key': 'SELECT lnkPersonToTeam WHERE team_id = "$teamId"',
+        'output_fields': 'person_id,person_id_friendlyname',
+      },
+    );
+    final objects = result['objects'] as Map<String, dynamic>?;
+    if (objects == null) return [];
+    final members = <Map<String, dynamic>>[];
+    final seenIds = <String>{};
+    for (final e in objects.entries) {
+      final fields = (e.value as Map<String, dynamic>)['fields']
+              as Map<String, dynamic>? ??
+          {};
+      final personId = fields['person_id']?.toString() ?? '';
+      final name = fields['person_id_friendlyname']?.toString() ?? '';
+      if (personId.isNotEmpty && personId != '0' && seenIds.add(personId)) {
+        members.add({'id': personId, 'name': name});
+      }
+    }
+    members
+        .sort((a, b) => (a['name'] as String).compareTo(b['name'] as String));
+    return members;
   }
 
   /// Parsa una risposta iTop in lista di {id, name}

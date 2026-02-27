@@ -92,7 +92,7 @@ class TicketActionsScreen extends StatelessWidget {
           title: 'Assegna',
           subtitle: 'Transizione a "Assegnato"',
           color: Colors.indigo,
-          onTap: () => _confirmStimulus(context, 'ev_assign', 'Assegna'),
+          onTap: () => _showAssignDialog(context),
         ));
         actions.add(_ActionTile(
           icon: Icons.check_circle,
@@ -122,23 +122,16 @@ class TicketActionsScreen extends StatelessWidget {
           title: 'Riassegna',
           subtitle: 'Riassegna ad altro team/agente',
           color: Colors.purple,
-          onTap: () => _confirmStimulus(context, 'ev_reassign', 'Riassegna'),
+          onTap: () => _showAssignDialog(context, stimulus: 'ev_reassign'),
         ));
         break;
       case 'pending':
         actions.add(_ActionTile(
           icon: Icons.assignment_ind,
-          title: 'Riassegna',
-          subtitle: 'Torna ad "Assegnato"',
+          title: 'Assegna',
+          subtitle: 'Riprendi e assegna il ticket',
           color: Colors.indigo,
-          onTap: () => _confirmStimulus(context, 'ev_reassign', 'Riassegna'),
-        ));
-        actions.add(_ActionTile(
-          icon: Icons.check_circle,
-          title: 'Risolvi',
-          subtitle: 'Inserisci servizio e soluzione',
-          color: Colors.green,
-          onTap: () => _showResolveDialog(context),
+          onTap: () => _showAssignDialog(context, stimulus: 'ev_assign'),
         ));
         break;
       case 'resolved':
@@ -254,6 +247,21 @@ class TicketActionsScreen extends StatelessWidget {
     }
   }
 
+  /// Dialog per assegnare il ticket a un team/agente
+  void _showAssignDialog(BuildContext context,
+      {String stimulus = 'ev_assign'}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => _AssignTicketScreen(ticket: ticket, stimulus: stimulus),
+      ),
+    ).then((result) {
+      if (result == true && context.mounted) {
+        Navigator.pop(context, true);
+      }
+    });
+  }
+
   /// Dialog per mettere il ticket in attesa (con motivo)
   void _showPendingDialog(BuildContext context) {
     final controller = TextEditingController();
@@ -289,6 +297,12 @@ class TicketActionsScreen extends StatelessWidget {
               final fields = <String, dynamic>{};
               if (reason.isNotEmpty) {
                 fields['pending_reason'] = reason;
+                fields['public_log'] = {
+                  'add_item': {
+                    'message': reason,
+                    'format': 'text',
+                  },
+                };
               }
               await _doStimulus(context, 'ev_pending', fields: fields);
             },
@@ -313,24 +327,57 @@ class TicketActionsScreen extends StatelessWidget {
     });
   }
 
-  /// Conferma un'azione di stimulus semplice
+  /// Conferma un'azione di stimulus semplice (con commento obbligatorio)
   void _confirmStimulus(
       BuildContext context, String stimulus, String actionLabel) {
+    final controller = TextEditingController();
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('Conferma: $actionLabel'),
-        content:
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             Text('Vuoi ${actionLabel.toLowerCase()} il ticket ${ticket.ref}?'),
+            const SizedBox(height: 12),
+            TextField(
+              controller: controller,
+              maxLines: 3,
+              decoration: const InputDecoration(
+                labelText: 'Commento *',
+                hintText: 'Inserisci un commento...',
+                border: OutlineInputBorder(),
+              ),
+            ),
+          ],
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: const Text('Annulla'),
           ),
           FilledButton(
-            onPressed: () async {
+            onPressed: () {
+              final comment = controller.text.trim();
+              if (comment.isEmpty) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Il commento è obbligatorio'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+                return;
+              }
               Navigator.pop(ctx);
-              await _doStimulus(context, stimulus);
+              _doStimulus(context, stimulus, fields: {
+                'public_log': {
+                  'add_item': {
+                    'message': comment,
+                    'format': 'text',
+                  },
+                },
+              });
             },
             child: Text(actionLabel),
           ),
@@ -374,6 +421,253 @@ class TicketActionsScreen extends StatelessWidget {
       barrierDismissible: false,
       builder: (_) => const Center(child: CircularProgressIndicator()),
     );
+  }
+}
+
+// ============================================================
+// Schermata Assegnazione Ticket
+// ============================================================
+
+class _AssignTicketScreen extends StatefulWidget {
+  final Ticket ticket;
+  final String stimulus;
+  const _AssignTicketScreen(
+      {required this.ticket, this.stimulus = 'ev_assign'});
+
+  @override
+  State<_AssignTicketScreen> createState() => _AssignTicketScreenState();
+}
+
+class _AssignTicketScreenState extends State<_AssignTicketScreen> {
+  final _formKey = GlobalKey<FormState>();
+
+  List<Map<String, dynamic>> _teams = [];
+  List<Map<String, dynamic>> _members = [];
+
+  String? _selectedTeamId;
+  String? _selectedMemberId;
+
+  bool _isLoadingTeams = true;
+  bool _isLoadingMembers = false;
+  bool _isSaving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // Se il ticket ha già un team, pre-selezionalo
+    if (widget.ticket.teamName.isNotEmpty) {
+      // Il team ID non è disponibile direttamente, verrà selezionato manualmente
+    }
+    _loadTeams();
+  }
+
+  Future<void> _loadTeams() async {
+    final provider = context.read<TicketProvider>();
+    final teams = await provider.getTeams();
+    if (mounted) {
+      setState(() {
+        _teams = teams;
+        _isLoadingTeams = false;
+      });
+    }
+  }
+
+  Future<void> _loadMembers(String teamId) async {
+    setState(() {
+      _isLoadingMembers = true;
+      _members = [];
+      _selectedMemberId = null;
+    });
+
+    try {
+      final provider = context.read<TicketProvider>();
+      final members = await provider.getTeamMembers(teamId);
+      if (mounted) {
+        setState(() {
+          _members = members;
+          _isLoadingMembers = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _members = [];
+          _isLoadingMembers = false;
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          widget.stimulus == 'ev_reassign'
+              ? 'Riassegna ${widget.ticket.ref}'
+              : 'Assegna ${widget.ticket.ref}',
+        ),
+      ),
+      body: Form(
+        key: _formKey,
+        child: ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // Info
+            Card(
+              color: Colors.indigo.shade50,
+              child: const Padding(
+                padding: EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Icon(Icons.info_outline, color: Colors.indigo),
+                    SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        'Seleziona il team e l\'agente a cui assegnare '
+                        'il ticket.',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // --- Team ---
+            Text('Team *',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            _isLoadingTeams
+                ? const Center(child: CircularProgressIndicator())
+                : DropdownButtonFormField<String>(
+                    value: _selectedTeamId,
+                    isExpanded: true,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      hintText: 'Seleziona un team',
+                    ),
+                    items: _teams
+                        .map((t) => DropdownMenuItem(
+                              value: t['id'] as String,
+                              child: Text(t['name'] as String),
+                            ))
+                        .toList(),
+                    validator: (v) => v == null ? 'Seleziona un team' : null,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedTeamId = value;
+                      });
+                      if (value != null) {
+                        _loadMembers(value);
+                      }
+                    },
+                  ),
+            const SizedBox(height: 20),
+
+            // --- Agente ---
+            Text('Agente *',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleSmall
+                    ?.copyWith(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            _isLoadingMembers
+                ? const Center(child: CircularProgressIndicator())
+                : DropdownButtonFormField<String>(
+                    value: _selectedMemberId,
+                    isExpanded: true,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      hintText: _members.isEmpty
+                          ? 'Seleziona prima un team'
+                          : 'Seleziona un agente',
+                    ),
+                    items: _members
+                        .map((m) => DropdownMenuItem(
+                              value: m['id'] as String,
+                              child: Text(m['name'] as String),
+                            ))
+                        .toList(),
+                    validator: (v) => _members.isNotEmpty && v == null
+                        ? 'Seleziona un agente'
+                        : null,
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedMemberId = value;
+                      });
+                    },
+                  ),
+            const SizedBox(height: 32),
+
+            // --- Bottone ---
+            SizedBox(
+              height: 48,
+              child: FilledButton.icon(
+                onPressed: _isSaving ? null : _assign,
+                icon: _isSaving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white))
+                    : const Icon(Icons.assignment_ind),
+                label: Text(_isSaving ? 'Assegnazione...' : 'Assegna Ticket'),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _assign() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _isSaving = true);
+
+    final provider = context.read<TicketProvider>();
+
+    final fields = <String, dynamic>{
+      'team_id': _selectedTeamId,
+      'agent_id': _selectedMemberId,
+    };
+
+    final success = await provider.applyStimulus(
+      widget.ticket.id,
+      widget.stimulus,
+      fields: fields,
+    );
+
+    if (!mounted) return;
+    setState(() => _isSaving = false);
+
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(widget.stimulus == 'ev_reassign'
+              ? 'Ticket riassegnato con successo!'
+              : 'Ticket assegnato con successo!'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context, true);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(provider.errorMessage ?? 'Errore nell\'assegnazione'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 }
 
@@ -442,9 +736,10 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
   @override
   void initState() {
     super.initState();
-    // Se il ticket ha già un servizio, pre-selezionalo
-    if (widget.ticket.serviceId.isNotEmpty) {
-      _selectedServiceId = widget.ticket.serviceId;
+    // Se il ticket ha già un servizio valido, pre-selezionalo
+    final sid = widget.ticket.serviceId;
+    if (sid.isNotEmpty && sid != '0') {
+      _selectedServiceId = sid;
     }
     _loadServices();
   }
@@ -453,6 +748,11 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
     final provider = context.read<TicketProvider>();
     final services = await provider.getServices();
     if (mounted) {
+      // Verifica che il servizio pre-selezionato esista nella lista
+      if (_selectedServiceId != null &&
+          !services.any((s) => s['id'] == _selectedServiceId)) {
+        _selectedServiceId = null;
+      }
       setState(() {
         _services = services;
         _isLoadingServices = false;
@@ -530,7 +830,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
             _isLoadingServices
                 ? const Center(child: CircularProgressIndicator())
                 : DropdownButtonFormField<String>(
-                    initialValue: _selectedServiceId,
+                    value: _selectedServiceId,
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
@@ -565,7 +865,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
             _isLoadingSubcategories
                 ? const Center(child: CircularProgressIndicator())
                 : DropdownButtonFormField<String>(
-                    initialValue: _selectedSubcategoryId,
+                    value: _selectedSubcategoryId,
                     isExpanded: true,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
