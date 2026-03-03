@@ -210,32 +210,102 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Recupera i log di un ticket
+  /// Recupera i log di un ticket (pubblici, privati e attività)
   Future<List<TicketLog>> getTicketLogs(String ticketId) async {
     if (_apiService == null) return [];
 
     try {
-      final result = await _apiService!.getTicketLog(ticketId);
-      final objects = result['objects'] as Map<String, dynamic>?;
-      if (objects == null || objects.isEmpty) return [];
-
-      final first = objects.values.first as Map<String, dynamic>;
-      final fields = first['fields'] as Map<String, dynamic>? ?? {};
+      final logResult = await _apiService!.getTicketLog(ticketId);
 
       final logs = <TicketLog>[];
 
-      // Parsa il public_log
-      final publicLog = fields['public_log'];
-      if (publicLog is Map<String, dynamic>) {
-        final entries = publicLog['entries'] as List<dynamic>?;
-        if (entries != null) {
-          for (final entry in entries) {
-            if (entry is Map<String, dynamic>) {
-              logs.add(TicketLog.fromJson(entry));
+      // Parsa il public_log e private_log dal risultato dei log
+      final logObjects = logResult['objects'] as Map<String, dynamic>?;
+      if (logObjects != null && logObjects.isNotEmpty) {
+        final first = logObjects.values.first as Map<String, dynamic>;
+        final fields = first['fields'] as Map<String, dynamic>? ?? {};
+
+        // Parsa il public_log
+        final publicLog = fields['public_log'];
+        if (publicLog is Map<String, dynamic>) {
+          final entries = publicLog['entries'] as List<dynamic>?;
+          if (entries != null) {
+            for (final entry in entries) {
+              if (entry is Map<String, dynamic>) {
+                logs.add(TicketLog.fromJson(entry, type: LogType.public));
+              }
+            }
+          }
+        }
+
+        // Parsa il private_log
+        final privateLog = fields['private_log'];
+        if (privateLog is Map<String, dynamic>) {
+          final entries = privateLog['entries'] as List<dynamic>?;
+          if (entries != null) {
+            for (final entry in entries) {
+              if (entry is Map<String, dynamic>) {
+                logs.add(TicketLog.fromJson(entry, type: LogType.private_));
+              }
             }
           }
         }
       }
+
+      // Parsa le attività (CMDBChangeOp) — fault-tolerant
+      try {
+        final historyRecords = await _apiService!.getTicketHistory(ticketId);
+
+        // Mappa attcode → classe iTop per risolvere gli ID
+        const attcodeToClass = <String, String>{
+          'agent_id': 'Person',
+          'caller_id': 'Person',
+          'team_id': 'Team',
+          'org_id': 'Organization',
+          'service_id': 'Service',
+          'servicesubcategory_id': 'ServiceSubcategory',
+        };
+
+        // Raccoglie tutti gli ID da risolvere, raggruppati per classe
+        final idsToResolve = <String, Set<String>>{};
+        for (final record in historyRecords) {
+          if (record['class'] == 'CMDBChangeOpSetAttributeScalar') {
+            final fields = record['fields'] as Map<String, dynamic>? ?? {};
+            final attcode = fields['attcode']?.toString() ?? '';
+            final targetClass = attcodeToClass[attcode];
+            if (targetClass != null) {
+              idsToResolve.putIfAbsent(targetClass, () => <String>{});
+              final oldVal = fields['oldvalue']?.toString() ?? '';
+              final newVal = fields['newvalue']?.toString() ?? '';
+              if (oldVal.isNotEmpty && oldVal != '0') {
+                idsToResolve[targetClass]!.add(oldVal);
+              }
+              if (newVal.isNotEmpty && newVal != '0') {
+                idsToResolve[targetClass]!.add(newVal);
+              }
+            }
+          }
+        }
+
+        // Risolve i nomi in batch (una chiamata per classe)
+        final resolvedNames = <String, String>{};
+        final resolveFutures = idsToResolve.entries.map((e) async {
+          final names = await _apiService!.resolveObjectNames(e.key, e.value);
+          names.forEach((id, name) => resolvedNames[id] = name);
+        });
+        await Future.wait(resolveFutures);
+
+        for (final record in historyRecords) {
+          final changeClass = record['class'] as String? ?? '';
+          final fields = record['fields'] as Map<String, dynamic>? ?? {};
+          logs.add(TicketLog.fromChangeOp(changeClass, fields, resolvedNames));
+        }
+      } catch (_) {
+        // Se CMDBChangeOp non è accessibile, ignora e mostra solo i log
+      }
+
+      // Ordina tutti i log per data decrescente
+      logs.sort((a, b) => b.date.compareTo(a.date));
 
       return logs;
     } catch (e) {
@@ -270,8 +340,8 @@ class TicketProvider with ChangeNotifier {
         case TicketSortOrder.lastUpdateAsc:
           result = a.lastUpdate.compareTo(b.lastUpdate);
         case TicketSortOrder.priorityDesc:
-          result = _priorityValue(a.priority)
-              .compareTo(_priorityValue(b.priority));
+          result =
+              _priorityValue(a.priority).compareTo(_priorityValue(b.priority));
         case TicketSortOrder.refDesc:
         case TicketSortOrder.refAsc:
           result = a.ref.compareTo(b.ref);

@@ -23,6 +23,9 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
   List<TicketLog> _logs = [];
   bool _isLoading = true;
 
+  // Filtri log
+  Set<LogType> _activeLogFilters = {LogType.public, LogType.private_};
+
   @override
   void initState() {
     super.initState();
@@ -228,18 +231,136 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.all(16),
-      itemCount: _logs.length,
-      separatorBuilder: (_, __) => const Divider(height: 24),
-      itemBuilder: (context, index) {
-        final log = _logs[index];
-        return _buildLogEntry(log);
+    final filteredLogs =
+        _logs.where((l) => _activeLogFilters.contains(l.type)).toList();
+
+    return Column(
+      children: [
+        // Chip filtro tipo log
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Row(
+            children: [
+              Expanded(
+                child: Wrap(
+                  spacing: 8,
+                  runSpacing: 4,
+                  children: [
+                    _buildLogFilterChip(
+                      label: 'Pubblico',
+                      icon: Icons.public,
+                      type: LogType.public,
+                      color: Colors.blue,
+                    ),
+                    _buildLogFilterChip(
+                      label: 'Privato',
+                      icon: Icons.lock,
+                      type: LogType.private_,
+                      color: Colors.orange,
+                    ),
+                    _buildLogFilterChip(
+                      label: 'Attività',
+                      icon: Icons.history,
+                      type: LogType.activity,
+                      color: Colors.green,
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '${filteredLogs.length} di ${_logs.length}',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Colors.grey[500],
+                    ),
+              ),
+            ],
+          ),
+        ),
+        const Divider(height: 1),
+        // Lista log filtrati
+        Expanded(
+          child: filteredLogs.isEmpty
+              ? Center(
+                  child: Text(
+                    'Nessun log con i filtri selezionati',
+                    style: TextStyle(color: Colors.grey[500]),
+                  ),
+                )
+              : ListView.separated(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: filteredLogs.length,
+                  separatorBuilder: (_, __) => const Divider(height: 24),
+                  itemBuilder: (context, index) {
+                    final log = filteredLogs[index];
+                    return _buildLogEntry(log);
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildLogFilterChip({
+    required String label,
+    required IconData icon,
+    required LogType type,
+    required Color color,
+  }) {
+    final isActive = _activeLogFilters.contains(type);
+    return FilterChip(
+      avatar: Icon(icon, size: 16, color: isActive ? Colors.white : color),
+      label: Text(label),
+      selected: isActive,
+      selectedColor: color,
+      checkmarkColor: Colors.white,
+      labelStyle: TextStyle(
+        color: isActive ? Colors.white : null,
+        fontWeight: isActive ? FontWeight.w600 : FontWeight.normal,
+      ),
+      onSelected: (selected) {
+        setState(() {
+          if (selected) {
+            _activeLogFilters.add(type);
+          } else {
+            // Non permettere di deselezionare tutto
+            if (_activeLogFilters.length > 1) {
+              _activeLogFilters.remove(type);
+            }
+          }
+        });
       },
     );
   }
 
   Widget _buildLogEntry(TicketLog log) {
+    final Color typeColor;
+    final IconData typeIcon;
+    final Color bgColor;
+    final Color borderColor;
+
+    switch (log.type) {
+      case LogType.private_:
+        typeColor = Colors.orange;
+        typeIcon = Icons.lock;
+        bgColor = Colors.orange.withValues(alpha: 0.04);
+        borderColor = Colors.orange.withValues(alpha: 0.2);
+        break;
+      case LogType.activity:
+        typeColor = Colors.green;
+        typeIcon = Icons.history;
+        bgColor = Colors.green.withValues(alpha: 0.04);
+        borderColor = Colors.green.withValues(alpha: 0.2);
+        break;
+      case LogType.public:
+      default:
+        typeColor = Colors.blue;
+        typeIcon = Icons.public;
+        bgColor = Colors.grey[50]!;
+        borderColor = Colors.grey.shade200;
+        break;
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -247,11 +368,11 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           children: [
             CircleAvatar(
               radius: 16,
-              backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-              child: const Icon(
-                Icons.person,
-                size: 18,
-                color: AppTheme.primaryColor,
+              backgroundColor: typeColor.withValues(alpha: 0.12),
+              child: Icon(
+                typeIcon,
+                size: 16,
+                color: typeColor,
               ),
             ),
             const SizedBox(width: 8),
@@ -259,9 +380,33 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    log.userLogin,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          log.userLogin,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 1),
+                        decoration: BoxDecoration(
+                          color: typeColor.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          log.type.label,
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: typeColor,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                   Text(
                     _formatDate(log.date),
@@ -279,11 +424,19 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           width: double.infinity,
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.grey[50],
+            color: bgColor,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: Colors.grey.shade200),
+            border: Border.all(color: borderColor),
           ),
-          child: SelectableText(log.message),
+          child: SelectableText(
+            log.message,
+            style: log.type == LogType.activity
+                ? TextStyle(
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey[700],
+                  )
+                : null,
+          ),
         ),
       ],
     );

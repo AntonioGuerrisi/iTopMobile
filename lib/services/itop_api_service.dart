@@ -162,6 +162,119 @@ class ITopApiService {
     );
   }
 
+  /// Recupera la storia delle attività di un ticket dalle sottoclassi CMDBChangeOp
+  Future<List<Map<String, dynamic>>> getTicketHistory(String ticketId) async {
+    final oqlWhere =
+        'WHERE objclass = \'UserRequest\' AND objkey = \'$ticketId\'';
+
+    // Esegue ogni query in modo fault-tolerant
+    Future<Map<String, dynamic>> _safeCall(Map<String, dynamic> data) async {
+      try {
+        return await _callApi(operation: 'core/get', data: data);
+      } catch (_) {
+        return {'objects': null};
+      }
+    }
+
+    // Interroga le sottoclassi che contengono informazioni utili
+    final futures = <Future<Map<String, dynamic>>>[
+      _safeCall({
+        'class': 'CMDBChangeOpCreate',
+        'key': 'SELECT CMDBChangeOpCreate $oqlWhere',
+        'output_fields': 'date,userinfo',
+      }),
+      _safeCall({
+        'class': 'CMDBChangeOpSetAttributeScalar',
+        'key': 'SELECT CMDBChangeOpSetAttributeScalar $oqlWhere',
+        'output_fields': 'date,userinfo,attcode,oldvalue,newvalue',
+      }),
+      _safeCall({
+        'class': 'CMDBChangeOpSetAttributeHTML',
+        'key': 'SELECT CMDBChangeOpSetAttributeHTML $oqlWhere',
+        'output_fields': 'date,userinfo,attcode',
+      }),
+      _safeCall({
+        'class': 'CMDBChangeOpSetAttributeText',
+        'key': 'SELECT CMDBChangeOpSetAttributeText $oqlWhere',
+        'output_fields': 'date,userinfo,attcode',
+      }),
+      _safeCall({
+        'class': 'CMDBChangeOpSetAttributeLongText',
+        'key': 'SELECT CMDBChangeOpSetAttributeLongText $oqlWhere',
+        'output_fields': 'date,userinfo,attcode',
+      }),
+      _safeCall({
+        'class': 'CMDBChangeOpSetAttributeBlob',
+        'key': 'SELECT CMDBChangeOpSetAttributeBlob $oqlWhere',
+        'output_fields': 'date,userinfo,attcode,filename',
+      }),
+      _safeCall({
+        'class': 'CMDBChangeOpPlugin',
+        'key': 'SELECT CMDBChangeOpPlugin $oqlWhere',
+        'output_fields': 'date,userinfo,description',
+      }),
+    ];
+
+    final results = await Future.wait(futures, eagerError: false);
+    final allRecords = <Map<String, dynamic>>[];
+
+    for (final result in results) {
+      final objects = result['objects'] as Map<String, dynamic>?;
+      if (objects != null) {
+        for (final entry in objects.values) {
+          final map = entry as Map<String, dynamic>;
+          // Usa finalclass se disponibile, altrimenti class
+          final cls = (map['fields'] as Map<String, dynamic>?)?['finalclass']
+                  ?.toString() ??
+              map['class']?.toString() ??
+              '';
+          allRecords.add({
+            'class': cls,
+            'fields': map['fields'] as Map<String, dynamic>? ?? {},
+          });
+        }
+      }
+    }
+
+    return allRecords;
+  }
+
+  /// Risolve una lista di ID in nomi leggibili per una data classe iTop
+  Future<Map<String, String>> resolveObjectNames(
+      String className, Set<String> ids) async {
+    if (ids.isEmpty) return {};
+    // Filtra '0' e vuoti
+    final validIds = ids.where((id) => id.isNotEmpty && id != '0').toList();
+    if (validIds.isEmpty) return {};
+
+    try {
+      final idList = validIds.join(',');
+      final result = await _callApi(
+        operation: 'core/get',
+        data: {
+          'class': className,
+          'key': 'SELECT $className WHERE id IN ($idList)',
+          'output_fields': 'friendlyname',
+        },
+      );
+      final objects = result['objects'] as Map<String, dynamic>?;
+      if (objects == null) return {};
+
+      final nameMap = <String, String>{};
+      for (final entry in objects.entries) {
+        final key = entry.key.toString();
+        final id = key.contains('::') ? key.split('::').last : key;
+        final fields = (entry.value as Map<String, dynamic>)['fields']
+                as Map<String, dynamic>? ??
+            {};
+        nameMap[id] = fields['friendlyname']?.toString() ?? id;
+      }
+      return nameMap;
+    } catch (_) {
+      return {};
+    }
+  }
+
   /// Cerca ticket per testo
   Future<Map<String, dynamic>> searchTickets(String searchText) async {
     final escapedText = searchText.replaceAll('"', '\\"');
