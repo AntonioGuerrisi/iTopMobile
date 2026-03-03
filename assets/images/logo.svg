@@ -1,0 +1,128 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <radialGradient id="bgGrad" cx="50%" cy="35%" r="90%">
+      <stop offset="0%" style="stop-color:#1B2838"/>
+      <stop offset="50%" style="stop-color:#0D1B2A"/>
+      <stop offset="100%" style="stop-color:#0A0E1A"/>
+    </radialGradient>
+    <linearGradient id="cyanFade" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#00E5FF;stop-opacity:0"/>
+      <stop offset="50%" style="stop-color:#00E5FF;stop-opacity:0.3"/>
+      <stop offset="100%" style="stop-color:#00E5FF;stop-opacity:0"/>
+    </linearGradient>
+    <linearGradient id="shieldFill" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" style="stop-color:#00E5FF;stop-opacity:0.08"/>
+      <stop offset="100%" style="stop-color:#0A0E1A;stop-opacity:0.7"/>
+    </linearGradient>
+    <filter id="glowCyan" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="glowCyanSoft" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Background con angoli arrotondati -->
+  <rect x="0" y="0" width="512" height="512" rx="112" ry="112" fill="url(#bgGrad)"/>
+
+  <!-- Griglia HUD sottile -->
+  <g stroke="#00E5FF" stroke-opacity="0.04" stroke-width="1">
+    <line x1="42.7" y1="0" x2="42.7" y2="512"/><line x1="85.3" y1="0" x2="85.3" y2="512"/>
+    <line x1="128" y1="0" x2="128" y2="512"/><line x1="170.7" y1="0" x2="170.7" y2="512"/>
+    <line x1="213.3" y1="0" x2="213.3" y2="512"/><line x1="256" y1="0" x2="256" y2="512"/>
+    <line x1="298.7" y1="0" x2="298.7" y2="512"/><line x1="341.3" y1="0" x2="341.3" y2="512"/>
+    <line x1="384" y1="0" x2="384" y2="512"/><line x1="426.7" y1="0" x2="426.7" y2="512"/>
+    <line x1="469.3" y1="0" x2="469.3" y2="512"/>
+    <line x1="0" y1="42.7" x2="512" y2="42.7"/><line x1="0" y1="85.3" x2="512" y2="85.3"/>
+    <line x1="0" y1="128" x2="512" y2="128"/><line x1="0" y1="170.7" x2="512" y2="170.7"/>
+    <line x1="0" y1="213.3" x2="512" y2="213.3"/><line x1="0" y1="256" x2="512" y2="256"/>
+    <line x1="0" y1="298.7" x2="512" y2="298.7"/><line x1="0" y1="341.3" x2="512" y2="341.3"/>
+    <line x1="0" y1="384" x2="512" y2="384"/><line x1="0" y1="426.7" x2="512" y2="426.7"/>
+    <line x1="0" y1="469.3" x2="512" y2="469.3"/>
+  </g>
+
+  <!-- Tracce circuito -->
+  <g fill="none" stroke="#00E5FF" stroke-opacity="0.12" stroke-width="2" stroke-linecap="round">
+    <path d="M41 113 L92 113 L92 61 L154 61"/>
+    <path d="M471 400 L420 400 L420 451 L358 451"/>
+    <path d="M51 435 L51 384 L102 384"/>
+    <path d="M461 77 L410 77 L410 128"/>
+  </g>
+  <!-- Nodi circuito -->
+  <g fill="#00E5FF" fill-opacity="0.25">
+    <circle cx="154" cy="61" r="4"/><circle cx="358" cy="451" r="4"/>
+    <circle cx="102" cy="384" r="3" fill="#D500F9" fill-opacity="0.2"/>
+    <circle cx="410" cy="128" r="3" fill="#D500F9" fill-opacity="0.2"/>
+  </g>
+
+  <!-- Anello esagonale - glow -->
+  <polygon points="256,61 425,158 425,354 256,451 87,354 87,158"
+           fill="none" stroke="#00E5FF" stroke-opacity="0.08" stroke-width="12"
+           filter="url(#glowCyanSoft)"/>
+  <!-- Anello esagonale principale -->
+  <polygon points="256,61 425,158 425,354 256,451 87,354 87,158"
+           fill="none" stroke="#00E5FF" stroke-opacity="0.2" stroke-width="2.5"/>
+  <!-- Anello esagonale interno -->
+  <polygon points="256,85 404,170 404,342 256,427 108,342 108,170"
+           fill="none" stroke="#00E5FF" stroke-opacity="0.08" stroke-width="1"/>
+  <!-- Vertici esagonali -->
+  <g fill="#00E5FF" fill-opacity="0.45">
+    <circle cx="256" cy="61" r="5"/><circle cx="425" cy="158" r="5"/>
+    <circle cx="425" cy="354" r="5"/><circle cx="256" cy="451" r="5"/>
+    <circle cx="87" cy="354" r="5"/><circle cx="87" cy="158" r="5"/>
+  </g>
+  <g fill="#00E5FF" fill-opacity="0.1" filter="url(#glowCyan)">
+    <circle cx="256" cy="61" r="11"/><circle cx="425" cy="158" r="11"/>
+    <circle cx="425" cy="354" r="11"/><circle cx="256" cy="451" r="11"/>
+    <circle cx="87" cy="354" r="11"/><circle cx="87" cy="158" r="11"/>
+  </g>
+
+  <!-- Scudo centrale -->
+  <path d="M256 168 L368 192 Q364 310 256 360 Q148 310 144 192 Z"
+        fill="url(#shieldFill)"/>
+  <path d="M256 168 L368 192 Q364 310 256 360 Q148 310 144 192 Z"
+        fill="none" stroke="#00E5FF" stroke-opacity="0.5" stroke-width="3"/>
+  <!-- Linea decorativa nello scudo -->
+  <line x1="190" y1="208" x2="322" y2="208" stroke="#00E5FF" stroke-opacity="0.14" stroke-width="1"/>
+
+  <!-- Scan line -->
+  <rect x="0" y="172" width="512" height="8" fill="url(#cyanFade)"/>
+
+  <!-- Checkmark neon -->
+  <polyline points="210,265 240,305 318,215"
+            fill="none" stroke="#00E5FF" stroke-opacity="0.15" stroke-width="26"
+            stroke-linecap="round" stroke-linejoin="round"
+            filter="url(#glowCyanSoft)"/>
+  <polyline points="210,265 240,305 318,215"
+            fill="none" stroke="#00E5FF" stroke-width="14"
+            stroke-linecap="round" stroke-linejoin="round"
+            filter="url(#glowCyan)"/>
+  <polyline points="210,265 240,305 318,215"
+            fill="none" stroke="white" stroke-opacity="0.65" stroke-width="4"
+            stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- iTop Mobile branding -->
+  <text x="256" y="416" font-family="Arial, Helvetica, sans-serif" text-anchor="middle" font-size="40">
+    <tspan fill="#00E5FF" font-weight="700" letter-spacing="1">iTop</tspan>
+    <tspan fill="#00E5FF" fill-opacity="0.55" font-weight="300" letter-spacing="1"> Mobile</tspan>
+  </text>
+  <!-- Linea sotto branding -->
+  <rect x="175" y="430" width="162" height="1.5" fill="url(#cyanFade)"/>
+
+  <!-- Accenti angolari HUD -->
+  <g stroke="#00E5FF" stroke-opacity="0.22" stroke-width="2" stroke-linecap="round" fill="none">
+    <polyline points="31,72 31,31 72,31"/>
+    <polyline points="481,72 481,31 440,31"/>
+    <polyline points="31,440 31,481 72,481"/>
+    <polyline points="481,440 481,481 440,481"/>
+  </g>
+
+  <!-- Bordo esterno glow -->
+  <rect x="0" y="0" width="512" height="512" rx="112" ry="112"
+        fill="none" stroke="#00E5FF" stroke-opacity="0.1" stroke-width="10"
+        filter="url(#glowCyanSoft)"/>
+  <rect x="0" y="0" width="512" height="512" rx="112" ry="112"
+        fill="none" stroke="#00E5FF" stroke-opacity="0.25" stroke-width="2"/>
+</svg>
