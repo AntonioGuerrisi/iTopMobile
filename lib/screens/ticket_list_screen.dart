@@ -107,6 +107,33 @@ class _TicketListScreenState extends State<TicketListScreen> {
                   .toList();
             },
           ),
+          // Selettore ordinamento
+          PopupMenuButton<TicketSortOrder>(
+            icon: const Icon(Icons.sort),
+            tooltip: 'Ordinamento',
+            onSelected: (order) {
+              context.read<TicketProvider>().changeSortOrder(order);
+            },
+            itemBuilder: (context) {
+              final current = context.read<TicketProvider>().sortOrder;
+              return TicketSortOrder.values
+                  .map((o) => PopupMenuItem(
+                        value: o,
+                        child: Row(
+                          children: [
+                            if (o == current)
+                              const Icon(Icons.check,
+                                  size: 18, color: Colors.blue)
+                            else
+                              const SizedBox(width: 18),
+                            const SizedBox(width: 8),
+                            Text(o.label),
+                          ],
+                        ),
+                      ))
+                  .toList();
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: () {

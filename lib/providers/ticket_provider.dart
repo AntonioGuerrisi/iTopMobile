@@ -17,6 +17,22 @@ enum TicketPeriod {
   const TicketPeriod(this.label, this.days);
 }
 
+/// Opzioni di ordinamento dei ticket
+enum TicketSortOrder {
+  openDateDesc('Data apertura ↓', 'start_date', false),
+  openDateAsc('Data apertura ↑', 'start_date', true),
+  lastUpdateDesc('Ultima modifica ↓', 'last_update', false),
+  lastUpdateAsc('Ultima modifica ↑', 'last_update', true),
+  priorityDesc('Priorità ↓', 'priority', false),
+  refDesc('Riferimento ↓', 'ref', false),
+  refAsc('Riferimento ↑', 'ref', true);
+
+  final String label;
+  final String field;
+  final bool ascending;
+  const TicketSortOrder(this.label, this.field, this.ascending);
+}
+
 /// Provider per la gestione dei ticket
 class TicketProvider with ChangeNotifier {
   ITopApiService? _apiService;
@@ -29,6 +45,7 @@ class TicketProvider with ChangeNotifier {
   String _searchQuery = '';
   String _statusFilter = 'all';
   TicketPeriod _selectedPeriod = TicketPeriod.last3Months;
+  TicketSortOrder _sortOrder = TicketSortOrder.openDateDesc;
   bool _myTicketsOnly = false;
   String? _currentUserFriendlyName;
 
@@ -44,6 +61,7 @@ class TicketProvider with ChangeNotifier {
   String get searchQuery => _searchQuery;
   String get statusFilter => _statusFilter;
   TicketPeriod get selectedPeriod => _selectedPeriod;
+  TicketSortOrder get sortOrder => _sortOrder;
   bool get myTicketsOnly => _myTicketsOnly;
   int get totalTickets => _tickets.length;
 
@@ -230,13 +248,61 @@ class TicketProvider with ChangeNotifier {
     final objects = result['objects'] as Map<String, dynamic>?;
     if (objects == null) return [];
 
-    return objects.entries.map((entry) {
+    final tickets = objects.entries.map((entry) {
       final key = entry.key.toString();
       // Estrai l'id numerico dalla chiave (es. "UserRequest::123")
       final id = key.contains('::') ? key.split('::').last : key;
       return Ticket.fromJson(id, entry.value as Map<String, dynamic>);
-    }).toList()
-      ..sort((a, b) => b.lastUpdate.compareTo(a.lastUpdate));
+    }).toList();
+    _sortTickets(tickets);
+    return tickets;
+  }
+
+  /// Ordina la lista di ticket in base al criterio selezionato
+  void _sortTickets(List<Ticket> list) {
+    list.sort((a, b) {
+      int result;
+      switch (_sortOrder) {
+        case TicketSortOrder.openDateDesc:
+        case TicketSortOrder.openDateAsc:
+          result = a.startDate.compareTo(b.startDate);
+        case TicketSortOrder.lastUpdateDesc:
+        case TicketSortOrder.lastUpdateAsc:
+          result = a.lastUpdate.compareTo(b.lastUpdate);
+        case TicketSortOrder.priorityDesc:
+          result = _priorityValue(a.priority)
+              .compareTo(_priorityValue(b.priority));
+        case TicketSortOrder.refDesc:
+        case TicketSortOrder.refAsc:
+          result = a.ref.compareTo(b.ref);
+      }
+      return _sortOrder.ascending ? result : -result;
+    });
+  }
+
+  /// Valore numerico per ordinamento priorità (1=critical, 4=low)
+  static int _priorityValue(String priority) {
+    switch (priority.toLowerCase()) {
+      case 'critical' || 'critica':
+        return 1;
+      case 'high' || 'alta':
+        return 2;
+      case 'medium' || 'media':
+        return 3;
+      case 'low' || 'bassa':
+        return 4;
+      default:
+        return 5;
+    }
+  }
+
+  /// Cambia l'ordinamento e riapplica ai ticket correnti
+  void changeSortOrder(TicketSortOrder order) {
+    if (order == _sortOrder) return;
+    _sortOrder = order;
+    _sortTickets(_tickets);
+    _applyFilters();
+    notifyListeners();
   }
 
   // ==================== AZIONI TICKET ====================
@@ -332,6 +398,7 @@ class TicketProvider with ChangeNotifier {
     _statusCounts = {};
     _searchQuery = '';
     _statusFilter = 'all';
+    _sortOrder = TicketSortOrder.openDateDesc;
     _myTicketsOnly = false;
     _errorMessage = null;
     notifyListeners();
