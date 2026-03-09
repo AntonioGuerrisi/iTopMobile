@@ -13,9 +13,7 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _serverUrlController = TextEditingController(
-    text: 'https://example.domain.tld',
-  );
+  final _serverUrlController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
@@ -109,7 +107,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _usernameController,
                     decoration: const InputDecoration(
                       labelText: 'Nome utente',
-                      hintText: 'admin',
                       prefixIcon: Icon(Icons.person),
                     ),
                     textInputAction: TextInputAction.next,

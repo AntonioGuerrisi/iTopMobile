@@ -30,7 +30,7 @@ class AppTheme {
         brightness: Brightness.light,
       ),
       appBarTheme: const AppBarTheme(
-        centerTitle: true,
+        centerTitle: false,
         elevation: 0,
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
@@ -99,7 +99,7 @@ class AppTheme {
         brightness: Brightness.dark,
       ),
       appBarTheme: const AppBarTheme(
-        centerTitle: true,
+        centerTitle: false,
         elevation: 0,
       ),
       cardTheme: CardThemeData(
