@@ -18,8 +18,8 @@ class StorageService {
   }) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_keyServerUrl, serverUrl);
-    await prefs.setString(_keyUsername, username);
     await prefs.setBool(_keyRememberMe, true);
+    await _secureStorage.write(key: _keyUsername, value: username);
     await _secureStorage.write(key: _keyPassword, value: password);
   }
 
@@ -31,7 +31,7 @@ class StorageService {
     if (!rememberMe) return null;
 
     final serverUrl = prefs.getString(_keyServerUrl);
-    final username = prefs.getString(_keyUsername);
+    final username = await _secureStorage.read(key: _keyUsername);
     final password = await _secureStorage.read(key: _keyPassword);
 
     if (serverUrl != null && username != null && password != null) {
@@ -48,8 +48,8 @@ class StorageService {
   Future<void> clearCredentials() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyServerUrl);
-    await prefs.remove(_keyUsername);
     await prefs.remove(_keyRememberMe);
+    await _secureStorage.delete(key: _keyUsername);
     await _secureStorage.delete(key: _keyPassword);
   }
 

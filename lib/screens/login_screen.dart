@@ -93,9 +93,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (value == null || value.trim().isEmpty) {
                         return 'Inserisci l\'URL del server';
                       }
-                      if (!value.startsWith('http://') &&
-                          !value.startsWith('https://')) {
-                        return 'L\'URL deve iniziare con http:// o https://';
+                      if (!value.startsWith('https://')) {
+                        return 'L\'URL deve iniziare con https:// (connessioni sicure)';
                       }
                       return null;
                     },

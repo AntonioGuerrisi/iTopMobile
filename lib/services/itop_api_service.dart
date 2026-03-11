@@ -14,10 +14,42 @@ class ITopApiService {
     required this.baseUrl,
     required this.username,
     required this.password,
-  });
+  }) {
+    if (!baseUrl.startsWith('https://')) {
+      throw ArgumentError(
+        'Connessione non sicura: l\'URL deve utilizzare HTTPS.',
+      );
+    }
+  }
 
   /// Endpoint REST di iTop
   String get _restEndpoint => '$baseUrl/webservices/rest.php';
+
+  /// Sanitizza una stringa per l'uso in query OQL (previene OQL injection)
+  static String _escapeOqlString(String value) {
+    return value
+        .replaceAll('\\', '\\\\')
+        .replaceAll('"', '\\"')
+        .replaceAll("'", "\\'")
+        .replaceAll('\n', ' ')
+        .replaceAll('\r', '');
+  }
+
+  /// Valida che un valore sia un ID numerico valido
+  static String _validateNumericId(String id) {
+    if (!RegExp(r'^\d+$').hasMatch(id)) {
+      throw ArgumentError('ID non valido: deve essere numerico.');
+    }
+    return id;
+  }
+
+  /// Valida che un nome di classe iTop contenga solo caratteri alfanumerici
+  static String _validateClassName(String className) {
+    if (!RegExp(r'^[a-zA-Z][a-zA-Z0-9_]*$').hasMatch(className)) {
+      throw ArgumentError('Nome classe non valido: $className');
+    }
+    return className;
+  }
 
   /// Esegue una chiamata REST all'API di iTop
   Future<Map<String, dynamic>> _callApi({
@@ -90,7 +122,8 @@ class ITopApiService {
         operation: 'core/get',
         data: {
           'class': 'UserLocal',
-          'key': 'SELECT UserLocal WHERE login = "$username"',
+          'key':
+              'SELECT UserLocal WHERE login = "${_escapeOqlString(username)}"',
           'output_fields': 'login,contactid,contactid_friendlyname',
         },
       );
@@ -164,8 +197,9 @@ class ITopApiService {
 
   /// Recupera la storia delle attività di un ticket dalle sottoclassi CMDBChangeOp
   Future<List<Map<String, dynamic>>> getTicketHistory(String ticketId) async {
+    final safeId = _validateNumericId(ticketId);
     final oqlWhere =
-        'WHERE objclass = \'UserRequest\' AND objkey = \'$ticketId\'';
+        'WHERE objclass = \'UserRequest\' AND objkey = \'$safeId\'';
 
     // Esegue ogni query in modo fault-tolerant
     Future<Map<String, dynamic>> _safeCall(Map<String, dynamic> data) async {
@@ -243,17 +277,21 @@ class ITopApiService {
   Future<Map<String, String>> resolveObjectNames(
       String className, Set<String> ids) async {
     if (ids.isEmpty) return {};
-    // Filtra '0' e vuoti
+    final safeClass = _validateClassName(className);
+    // Filtra '0' e vuoti, validando che siano numerici
     final validIds = ids.where((id) => id.isNotEmpty && id != '0').toList();
     if (validIds.isEmpty) return {};
+    for (final id in validIds) {
+      _validateNumericId(id);
+    }
 
     try {
       final idList = validIds.join(',');
       final result = await _callApi(
         operation: 'core/get',
         data: {
-          'class': className,
-          'key': 'SELECT $className WHERE id IN ($idList)',
+          'class': safeClass,
+          'key': 'SELECT $safeClass WHERE id IN ($idList)',
           'output_fields': 'friendlyname',
         },
       );
@@ -277,7 +315,7 @@ class ITopApiService {
 
   /// Cerca ticket per testo
   Future<Map<String, dynamic>> searchTickets(String searchText) async {
-    final escapedText = searchText.replaceAll('"', '\\"');
+    final escapedText = _escapeOqlString(searchText);
     return getTickets(
       oqlFilter:
           'SELECT UserRequest WHERE title LIKE "%$escapedText%" OR ref LIKE "%$escapedText%" OR description LIKE "%$escapedText%"',
@@ -287,7 +325,8 @@ class ITopApiService {
   /// Recupera ticket filtrati per stato
   Future<Map<String, dynamic>> getTicketsByStatus(String status) async {
     return getTickets(
-      oqlFilter: 'SELECT UserRequest WHERE status = "$status"',
+      oqlFilter:
+          'SELECT UserRequest WHERE status = "${_escapeOqlString(status)}"',
     );
   }
 
@@ -395,7 +434,8 @@ class ITopApiService {
   Future<List<Map<String, dynamic>>> getServices({String? orgId}) async {
     String oql = 'SELECT Service';
     if (orgId != null && orgId.isNotEmpty) {
-      oql = 'SELECT Service WHERE org_id = "$orgId"';
+      final safeOrgId = _validateNumericId(orgId);
+      oql = 'SELECT Service WHERE org_id = "$safeOrgId"';
     }
     final result = await _callApi(
       operation: 'core/get',
@@ -411,11 +451,12 @@ class ITopApiService {
   /// Recupera le sottocategorie di un servizio
   Future<List<Map<String, dynamic>>> getServiceSubcategories(
       String serviceId) async {
+    final safeId = _validateNumericId(serviceId);
     final result = await _callApi(
       operation: 'core/get',
       data: {
         'class': 'ServiceSubcategory',
-        'key': 'SELECT ServiceSubcategory WHERE service_id = "$serviceId"',
+        'key': 'SELECT ServiceSubcategory WHERE service_id = "$safeId"',
         'output_fields': 'name',
       },
     );
@@ -437,11 +478,12 @@ class ITopApiService {
 
   /// Recupera i membri (Person) di un team
   Future<List<Map<String, dynamic>>> getTeamMembers(String teamId) async {
+    final safeId = _validateNumericId(teamId);
     final result = await _callApi(
       operation: 'core/get',
       data: {
         'class': 'lnkPersonToTeam',
-        'key': 'SELECT lnkPersonToTeam WHERE team_id = "$teamId"',
+        'key': 'SELECT lnkPersonToTeam WHERE team_id = "$safeId"',
         'output_fields': 'person_id,person_id_friendlyname',
       },
     );
@@ -544,7 +586,7 @@ class ITopApiService {
     String? className,
     String? outputFields,
   }) async {
-    final cls = className ?? 'FunctionalCI';
+    final cls = _validateClassName(className ?? 'FunctionalCI');
     String oql = oqlFilter ?? 'SELECT $cls';
 
     // Usa i campi estesi solo per classi che li supportano
@@ -578,7 +620,7 @@ class ITopApiService {
 
   /// Cerca asset per testo
   Future<Map<String, dynamic>> searchAssets(String searchText) async {
-    final escapedText = searchText.replaceAll('"', '\\"');
+    final escapedText = _escapeOqlString(searchText);
     return getAssets(
       oqlFilter:
           'SELECT FunctionalCI WHERE name LIKE "%$escapedText%" OR description LIKE "%$escapedText%"',
