@@ -183,6 +183,31 @@ class _LoginScreenState extends State<LoginScreen> {
                           : const Text('Accedi'),
                     ),
                   ),
+
+                  // Pulsante reset pin certificato (visibile solo in caso di errore SSL)
+                  if (auth.isCertificateError) ...[
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        await auth.resetCertificatePin();
+                        if (mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: const Text(
+                                'Pin certificato resettato. Riprova il login.',
+                              ),
+                              behavior: SnackBarBehavior.floating,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Resetta pin certificato'),
+                    ),
+                  ],
                 ],
               ),
             ),

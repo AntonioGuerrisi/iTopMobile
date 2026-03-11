@@ -81,13 +81,24 @@ class SettingsScreen extends StatelessWidget {
                 FutureBuilder<PackageInfo>(
                   future: PackageInfo.fromPlatform(),
                   builder: (context, snapshot) {
-                    final version = snapshot.hasData
-                        ? snapshot.data!.version
-                        : '...';
-                    return ListTile(
-                      leading: const Icon(Icons.info_outline),
-                      title: const Text('Versione'),
-                      subtitle: Text(version),
+                    final version =
+                        snapshot.hasData ? snapshot.data!.version : '...';
+                    final buildNumber =
+                        snapshot.hasData ? snapshot.data!.buildNumber : '...';
+                    return Column(
+                      children: [
+                        ListTile(
+                          leading: const Icon(Icons.info_outline),
+                          title: const Text('Versione'),
+                          subtitle: Text(version),
+                        ),
+                        const Divider(height: 1),
+                        ListTile(
+                          leading: const Icon(Icons.build_outlined),
+                          title: const Text('Build'),
+                          subtitle: Text(buildNumber),
+                        ),
+                      ],
                     );
                   },
                 ),

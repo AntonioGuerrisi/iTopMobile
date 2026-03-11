@@ -58,4 +58,23 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_keyRememberMe) ?? false;
   }
+
+  // ==================== CERTIFICATE PINNING ====================
+
+  static const _pinPrefix = 'cert_pin_';
+
+  /// Salva il fingerprint SHA-256 del certificato per un host
+  Future<void> saveCertificatePin(String host, String fingerprint) async {
+    await _secureStorage.write(key: '$_pinPrefix$host', value: fingerprint);
+  }
+
+  /// Carica il fingerprint memorizzato per un host
+  Future<String?> loadCertificatePin(String host) async {
+    return await _secureStorage.read(key: '$_pinPrefix$host');
+  }
+
+  /// Elimina il pin memorizzato per un host (es. dopo rinnovo certificato)
+  Future<void> deleteCertificatePin(String host) async {
+    await _secureStorage.delete(key: '$_pinPrefix$host');
+  }
 }

@@ -1,7 +1,7 @@
 name: itop_mobile
 description: App mobile per la gestione dei ticket e asset di iTop.
 publish_to: 'none'
-version: 0.2.0+18
+version: 0.2.1+22
 
 environment:
   sdk: ^3.5.0
@@ -20,6 +20,7 @@ dependencies:
   pull_to_refresh_flutter3: ^2.0.2
   flutter_slidable: ^3.1.1
   package_info_plus: ^8.0.0
+  crypto: ^3.0.7
 
 dev_dependencies:
   flutter_test:

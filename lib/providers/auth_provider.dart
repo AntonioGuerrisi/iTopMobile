@@ -1,14 +1,18 @@
 import 'package:flutter/foundation.dart';
 import '../services/itop_api_service.dart';
 import '../services/storage_service.dart';
+import '../services/certificate_pinning_service.dart';
 
 /// Provider per la gestione dell'autenticazione
 class AuthProvider with ChangeNotifier {
   ITopApiService? _apiService;
   final StorageService _storageService = StorageService();
+  late final CertificatePinningService _pinningService =
+      CertificatePinningService(_storageService);
 
   bool _isAuthenticated = false;
   bool _isLoading = false;
+  bool _isCertificateError = false;
   String? _errorMessage;
   String _serverUrl = 'https://example.domain.tld';
   String _username = '';
@@ -16,6 +20,7 @@ class AuthProvider with ChangeNotifier {
 
   bool get isAuthenticated => _isAuthenticated;
   bool get isLoading => _isLoading;
+  bool get isCertificateError => _isCertificateError;
   String? get errorMessage => _errorMessage;
   String get serverUrl => _serverUrl;
   String get username => _username;
@@ -68,6 +73,9 @@ class AuthProvider with ChangeNotifier {
           ? serverUrl.substring(0, serverUrl.length - 1)
           : serverUrl;
 
+      // Verifica il certificato del server (TOFU pinning)
+      await _pinningService.verifyServerCertificate(normalizedUrl);
+
       _apiService = ITopApiService(
         baseUrl: normalizedUrl,
         username: username,
@@ -99,7 +107,15 @@ class AuthProvider with ChangeNotifier {
 
       return success;
     } catch (e) {
-      _errorMessage = 'Errore di connessione: $e';
+      if (e.toString().contains('HandshakeException') ||
+          e.toString().contains('CertificatePinningException')) {
+        _isCertificateError = true;
+        _errorMessage =
+            'Errore certificato SSL: il certificato del server potrebbe '
+            'essere cambiato. Prova a resettare il pin del certificato.';
+      } else {
+        _errorMessage = 'Errore di connessione: $e';
+      }
       _apiService = null;
       return false;
     } finally {
@@ -115,7 +131,17 @@ class AuthProvider with ChangeNotifier {
     _currentUser = null;
     _username = '';
     _errorMessage = null;
+    _isCertificateError = false;
     await _storageService.clearCredentials();
+    notifyListeners();
+  }
+
+  /// Resetta il pin del certificato per il server corrente
+  Future<void> resetCertificatePin() async {
+    final uri = Uri.parse(_serverUrl);
+    await _pinningService.resetPin(uri.host);
+    _isCertificateError = false;
+    _errorMessage = null;
     notifyListeners();
   }
 

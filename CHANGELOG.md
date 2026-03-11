@@ -1,11 +1,17 @@
 # Changelog
 
+## [0.2.1] - 2026-03-11
+### Added
+- Numero di build visibile nella schermata Impostazioni
+
 ## [0.2.0] - 2026-03-11
 ### Changed
 - Connessioni HTTP bloccate: l'app accetta esclusivamente URL HTTPS per proteggere le credenziali in transito
 - Username spostato da SharedPreferences a flutter_secure_storage (cifratura nativa OS)
 - Validazione HTTPS aggiunta anche nel servizio API (ITopApiService) come ulteriore protezione
 - Sanitizzazione completa input OQL: escape stringhe, validazione ID numerici e nomi classe per prevenire OQL injection
+- Certificate pinning TOFU: al primo collegamento il fingerprint SHA-256 del certificato viene memorizzato e verificato ad ogni connessione successiva
+- Pulsante "Resetta pin certificato" nella schermata di login in caso di errore SSL (es. rinnovo certificato)
 
 ## [0.1.14] - 2026-03-11
 ### Changed
