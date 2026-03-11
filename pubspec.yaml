@@ -1,7 +1,7 @@
 name: itop_mobile
 description: App mobile per la gestione dei ticket e asset di iTop.
 publish_to: 'none'
-version: 0.1.13+14
+version: 0.1.14+16
 
 environment:
   sdk: ^3.5.0

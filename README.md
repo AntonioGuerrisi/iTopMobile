@@ -113,9 +113,17 @@ flutter build apk --debug
 # Build APK release
 flutter build apk --release
 
-# Build release iOS
+# Build iOS debug (solo macOS con Xcode)
+flutter build ios --debug --no-codesign
+
+# Build iOS release (solo macOS con Xcode)
 flutter build ios --release
+
+# Build IPA per distribuzione (solo macOS con Xcode)
+flutter build ipa --release
 ```
+
+> **Nota:** I build iOS (`flutter build ios` e `flutter build ipa`) richiedono **macOS** con **Xcode** installato. Non è possibile compilare per iOS da Windows o Linux.
 
 ## Dipendenze principali
 
