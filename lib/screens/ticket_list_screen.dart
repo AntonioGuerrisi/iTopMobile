@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:itop_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_strings.dart';
 import '../providers/ticket_provider.dart';
 import '../models/ticket.dart';
 import '../widgets/ticket_card.dart';
@@ -44,9 +44,9 @@ class _TicketListScreenState extends State<TicketListScreen> {
                 controller: _searchController,
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  hintText: AppStrings.searchTickets,
-                  hintStyle: TextStyle(color: Colors.white70),
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.searchTickets,
+                  hintStyle: const TextStyle(color: Colors.white70),
                   border: InputBorder.none,
                   filled: false,
                 ),
@@ -54,7 +54,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                   context.read<TicketProvider>().searchTickets(value);
                 },
               )
-            : const Text(AppStrings.tickets),
+            : Text(AppLocalizations.of(context)!.tickets),
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -76,15 +76,15 @@ class _TicketListScreenState extends State<TicketListScreen> {
                 color: provider.myTicketsOnly ? Colors.amber : null,
               ),
               tooltip: provider.myTicketsOnly
-                  ? AppStrings.showAllTickets
-                  : AppStrings.myTicketsOnly,
+                  ? AppLocalizations.of(context)!.showAllTickets
+                  : AppLocalizations.of(context)!.myTicketsOnly,
               onPressed: () => provider.toggleMyTickets(),
             ),
           ),
           // Period selector
           PopupMenuButton<TicketPeriod>(
             icon: const Icon(Icons.date_range),
-            tooltip: AppStrings.period,
+            tooltip: AppLocalizations.of(context)!.period,
             onSelected: (period) {
               context.read<TicketProvider>().changePeriod(period);
             },
@@ -111,7 +111,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
           // Sort selector
           PopupMenuButton<TicketSortOrder>(
             icon: const Icon(Icons.sort),
-            tooltip: AppStrings.sort,
+            tooltip: AppLocalizations.of(context)!.sort,
             onSelected: (order) {
               context.read<TicketProvider>().changeSortOrder(order);
             },
@@ -146,13 +146,13 @@ class _TicketListScreenState extends State<TicketListScreen> {
       body: Consumer<TicketProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading && provider.tickets.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text(AppStrings.loadingTickets),
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(AppLocalizations.of(context)!.loadingTickets),
                 ],
               ),
             );
@@ -176,7 +176,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                     ElevatedButton.icon(
                       onPressed: () => provider.loadTickets(),
                       icon: const Icon(Icons.refresh),
-                      label: const Text(AppStrings.retry),
+                      label: Text(AppLocalizations.of(context)!.retry),
                     ),
                   ],
                 ),
@@ -219,9 +219,9 @@ class _TicketListScreenState extends State<TicketListScreen> {
                           color: Colors.amber.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(4),
                         ),
-                        child: const Text(
-                          AppStrings.myTickets,
-                          style: TextStyle(
+                        child: Text(
+                          AppLocalizations.of(context)!.myTickets,
+                          style: const TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: Colors.amber,
@@ -231,7 +231,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                     ],
                     const SizedBox(width: 8),
                     Text(
-                      '${provider.tickets.length}${AppStrings.ticketCountSuffix}',
+                      '${provider.tickets.length}${AppLocalizations.of(context)!.ticketCountSuffix}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Colors.grey[600],
                           ),
@@ -259,7 +259,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                                 size: 64, color: Colors.grey[400]),
                             const SizedBox(height: 16),
                             Text(
-                              AppStrings.noTicketsFound,
+                              AppLocalizations.of(context)!.noTicketsFound,
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                           ],

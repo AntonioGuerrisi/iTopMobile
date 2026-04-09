@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:itop_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_strings.dart';
 import '../models/ticket.dart';
 import '../providers/ticket_provider.dart';
 import '../theme/app_theme.dart';
@@ -15,7 +15,7 @@ class TicketActionsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${AppStrings.actions} - ${ticket.ref}'),
+        title: Text('${AppLocalizations.of(context)!.actions} - ${ticket.ref}'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -29,7 +29,7 @@ class TicketActionsScreen extends StatelessWidget {
                   Icon(AppTheme.getStatusIcon(ticket.status),
                       color: AppTheme.getStatusColor(ticket.status)),
                   const SizedBox(width: 12),
-                  Text(AppStrings.currentStatus,
+                  Text(AppLocalizations.of(context)!.currentStatus,
                       style: TextStyle(color: Colors.grey[600])),
                   Text(
                     ticket.status,
@@ -42,19 +42,19 @@ class TicketActionsScreen extends StatelessWidget {
           const SizedBox(height: 16),
 
           // --- Log section ---
-          _buildSectionTitle(context, AppStrings.addToLog),
+          _buildSectionTitle(context, AppLocalizations.of(context)!.addToLog),
           const SizedBox(height: 8),
           _ActionTile(
             icon: Icons.chat,
-            title: AppStrings.publicLogTitle,
-            subtitle: AppStrings.visibleToRequester,
+            title: AppLocalizations.of(context)!.publicLogTitle,
+            subtitle: AppLocalizations.of(context)!.visibleToRequester,
             color: Colors.blue,
             onTap: () => _showAddLogDialog(context, isPublic: true),
           ),
           _ActionTile(
             icon: Icons.lock,
-            title: AppStrings.privateLogTitle,
-            subtitle: AppStrings.visibleToInternalTeam,
+            title: AppLocalizations.of(context)!.privateLogTitle,
+            subtitle: AppLocalizations.of(context)!.visibleToInternalTeam,
             color: Colors.orange,
             onTap: () => _showAddLogDialog(context, isPublic: false),
           ),
@@ -62,7 +62,7 @@ class TicketActionsScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           // --- Status section ---
-          _buildSectionTitle(context, AppStrings.changeStatus),
+          _buildSectionTitle(context, AppLocalizations.of(context)!.changeStatus),
           const SizedBox(height: 8),
           ..._buildStatusActions(context),
         ],
@@ -90,14 +90,14 @@ class TicketActionsScreen extends StatelessWidget {
       case 'new':
         actions.add(_ActionTile(
           icon: Icons.assignment_ind,
-          title: AppStrings.assign,
-          subtitle: '${AppStrings.assign} -> ${AppStrings.assignedStatus}',
+          title: AppLocalizations.of(context)!.assign,
+          subtitle: '${AppLocalizations.of(context)!.assign} -> ${AppLocalizations.of(context)!.assignedStatus}',
           color: Colors.indigo,
           onTap: () => _showAssignDialog(context),
         ));
         actions.add(_ActionTile(
           icon: Icons.check_circle,
-          title: AppStrings.resolve,
+          title: AppLocalizations.of(context)!.resolve,
           subtitle: 'Resolve the ticket directly',
           color: Colors.green,
           onTap: () => _showResolveDialog(context),
@@ -106,21 +106,21 @@ class TicketActionsScreen extends StatelessWidget {
       case 'assigned':
         actions.add(_ActionTile(
           icon: Icons.pause_circle,
-          title: AppStrings.pending,
+          title: AppLocalizations.of(context)!.pending,
           subtitle: 'Waiting for more information',
           color: Colors.amber,
           onTap: () => _showPendingDialog(context),
         ));
         actions.add(_ActionTile(
           icon: Icons.check_circle,
-          title: AppStrings.resolve,
+          title: AppLocalizations.of(context)!.resolve,
           subtitle: 'Select a service and resolution',
           color: Colors.green,
           onTap: () => _showResolveDialog(context),
         ));
         actions.add(_ActionTile(
           icon: Icons.redo,
-          title: AppStrings.reassign,
+          title: AppLocalizations.of(context)!.reassign,
           subtitle: 'Reassign to another team or agent',
           color: Colors.purple,
           onTap: () => _showAssignDialog(context, stimulus: 'ev_reassign'),
@@ -129,7 +129,7 @@ class TicketActionsScreen extends StatelessWidget {
       case 'pending':
         actions.add(_ActionTile(
           icon: Icons.assignment_ind,
-          title: AppStrings.assign,
+          title: AppLocalizations.of(context)!.assign,
           subtitle: 'Resume and assign the ticket',
           color: Colors.indigo,
           onTap: () => _showAssignDialog(context, stimulus: 'ev_assign'),
@@ -138,18 +138,18 @@ class TicketActionsScreen extends StatelessWidget {
       case 'resolved':
         actions.add(_ActionTile(
           icon: Icons.done_all,
-          title: AppStrings.close,
+          title: AppLocalizations.of(context)!.close,
           subtitle: 'Close the ticket permanently',
           color: Colors.teal,
-          onTap: () => _confirmStimulus(context, 'ev_close', AppStrings.close),
+          onTap: () => _confirmStimulus(context, 'ev_close', AppLocalizations.of(context)!.close),
         ));
         actions.add(_ActionTile(
           icon: Icons.replay,
-          title: AppStrings.reopen,
+          title: AppLocalizations.of(context)!.reopen,
           subtitle: 'Return the ticket to assigned',
           color: Colors.deepOrange,
           onTap: () =>
-              _confirmStimulus(context, 'ev_reopen', AppStrings.reopen),
+              _confirmStimulus(context, 'ev_reopen', AppLocalizations.of(context)!.reopen),
         ));
         break;
       case 'closed':
@@ -176,7 +176,7 @@ class TicketActionsScreen extends StatelessWidget {
       default:
         actions.add(_ActionTile(
           icon: Icons.check_circle,
-          title: AppStrings.resolve,
+          title: AppLocalizations.of(context)!.resolve,
           subtitle: 'Enter the resolution',
           color: Colors.green,
           onTap: () => _showResolveDialog(context),
@@ -194,19 +194,19 @@ class TicketActionsScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(
-            isPublic ? AppStrings.publicLogTitle : AppStrings.privateLogTitle),
+            isPublic ? AppLocalizations.of(context)!.publicLogTitle : AppLocalizations.of(context)!.privateLogTitle),
         content: TextField(
           controller: controller,
           maxLines: 5,
           decoration: InputDecoration(
-            hintText: AppStrings.writeLogMessage,
+            hintText: AppLocalizations.of(context)!.writeLogMessage,
             border: const OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(AppStrings.cancel),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -215,7 +215,7 @@ class TicketActionsScreen extends StatelessWidget {
               Navigator.pop(ctx);
               await _sendLog(context, message, isPublic);
             },
-            child: const Text(AppStrings.addLog),
+            child: Text(AppLocalizations.of(context)!.addLog),
           ),
         ],
       ),
@@ -243,7 +243,7 @@ class TicketActionsScreen extends StatelessWidget {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(provider.errorMessage ?? AppStrings.error),
+            content: Text(provider.errorMessage ?? AppLocalizations.of(context)!.error),
             backgroundColor: Colors.red),
       );
     }
@@ -271,18 +271,18 @@ class TicketActionsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text(AppStrings.pendingReasonTitle),
+        title: Text(AppLocalizations.of(context)!.pendingReasonTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text(AppStrings.pendingReasonLabel),
+            Text(AppLocalizations.of(context)!.pendingReasonLabel),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
               maxLines: 3,
-              decoration: const InputDecoration(
-                hintText: AppStrings.pendingReasonHint,
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                hintText: AppLocalizations.of(context)!.pendingReasonHint,
+                border: const OutlineInputBorder(),
               ),
             ),
           ],
@@ -290,7 +290,7 @@ class TicketActionsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(AppStrings.cancel),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -308,7 +308,7 @@ class TicketActionsScreen extends StatelessWidget {
               }
               await _doStimulus(context, 'ev_pending', fields: fields);
             },
-            child: const Text(AppStrings.confirm),
+            child: Text(AppLocalizations.of(context)!.confirm),
           ),
         ],
       ),
@@ -337,7 +337,7 @@ class TicketActionsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('${AppStrings.confirmActionTitle} $actionLabel'),
+        title: Text('${AppLocalizations.of(context)!.confirmActionTitle} $actionLabel'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -347,10 +347,10 @@ class TicketActionsScreen extends StatelessWidget {
             TextField(
               controller: controller,
               maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: AppStrings.commentLabel,
-                hintText: AppStrings.commentHint,
-                border: OutlineInputBorder(),
+              decoration: InputDecoration(
+                labelText: AppLocalizations.of(context)!.commentLabel,
+                hintText: AppLocalizations.of(context)!.commentHint,
+                border: const OutlineInputBorder(),
               ),
             ),
           ],
@@ -358,15 +358,15 @@ class TicketActionsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(AppStrings.cancel),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           FilledButton(
             onPressed: () {
               final comment = controller.text.trim();
               if (comment.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text(AppStrings.mandatoryComment),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.mandatoryComment),
                     backgroundColor: Colors.orange,
                   ),
                 );
@@ -412,7 +412,7 @@ class TicketActionsScreen extends StatelessWidget {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(provider.errorMessage ?? AppStrings.error),
+            content: Text(provider.errorMessage ?? AppLocalizations.of(context)!.error),
             backgroundColor: Colors.red),
       );
     }
@@ -512,8 +512,8 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
       appBar: AppBar(
         title: Text(
           widget.stimulus == 'ev_reassign'
-              ? '${AppStrings.reassign} ${widget.ticket.ref}'
-              : '${AppStrings.assign} ${widget.ticket.ref}',
+              ? '${AppLocalizations.of(context)!.reassign} ${widget.ticket.ref}'
+              : '${AppLocalizations.of(context)!.assign} ${widget.ticket.ref}',
         ),
       ),
       body: Form(
@@ -542,7 +542,7 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
             const SizedBox(height: 20),
 
             // --- Team ---
-            Text('${AppStrings.team} *',
+            Text('${AppLocalizations.of(context)!.team} *',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -551,11 +551,11 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
             _isLoadingTeams
                 ? const Center(child: CircularProgressIndicator())
                 : DropdownButtonFormField<String>(
-                    value: _selectedTeamId,
+                    initialValue: _selectedTeamId,
                     isExpanded: true,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: AppStrings.selectTeam,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      hintText: AppLocalizations.of(context)!.selectTeam,
                     ),
                     items: _teams
                         .map((t) => DropdownMenuItem(
@@ -563,7 +563,7 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
                               child: Text(t['name'] as String),
                             ))
                         .toList(),
-                    validator: (v) => v == null ? AppStrings.selectTeam : null,
+                    validator: (v) => v == null ? AppLocalizations.of(context)!.selectTeam : null,
                     onChanged: (value) {
                       setState(() {
                         _selectedTeamId = value;
@@ -576,7 +576,7 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
             const SizedBox(height: 20),
 
             // --- Agent ---
-            Text('${AppStrings.agent} *',
+            Text('${AppLocalizations.of(context)!.agent} *',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -585,13 +585,13 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
             _isLoadingMembers
                 ? const Center(child: CircularProgressIndicator())
                 : DropdownButtonFormField<String>(
-                    value: _selectedMemberId,
+                    initialValue: _selectedMemberId,
                     isExpanded: true,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       hintText: _members.isEmpty
-                          ? AppStrings.selectTeamFirst
-                          : AppStrings.selectAgent,
+                          ? AppLocalizations.of(context)!.selectTeamFirst
+                          : AppLocalizations.of(context)!.selectAgent,
                     ),
                     items: _members
                         .map((m) => DropdownMenuItem(
@@ -600,7 +600,7 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
                             ))
                         .toList(),
                     validator: (v) => _members.isNotEmpty && v == null
-                        ? AppStrings.selectAgent
+                        ? AppLocalizations.of(context)!.selectAgent
                         : null,
                     onChanged: (value) {
                       setState(() {
@@ -623,8 +623,8 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
                             strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.assignment_ind),
                 label: Text(_isSaving
-                    ? AppStrings.assigningTicket
-                    : AppStrings.assignTicket),
+                    ? AppLocalizations.of(context)!.assigningTicket
+                    : AppLocalizations.of(context)!.assignTicket),
               ),
             ),
           ],
@@ -658,8 +658,8 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(widget.stimulus == 'ev_reassign'
-              ? AppStrings.ticketReassignedSuccessfully
-              : AppStrings.ticketAssignedSuccessfully),
+              ? AppLocalizations.of(context)!.ticketReassignedSuccessfully
+              : AppLocalizations.of(context)!.ticketAssignedSuccessfully),
           backgroundColor: Colors.green,
         ),
       );
@@ -795,7 +795,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${AppStrings.resolve} ${widget.ticket.ref}'),
+        title: Text('${AppLocalizations.of(context)!.resolve} ${widget.ticket.ref}'),
       ),
       body: Form(
         key: _formKey,
@@ -823,7 +823,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
             const SizedBox(height: 20),
 
             // --- Service ---
-            Text(AppStrings.service,
+            Text(AppLocalizations.of(context)!.service,
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -832,11 +832,11 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
             _isLoadingServices
                 ? const Center(child: CircularProgressIndicator())
                 : DropdownButtonFormField<String>(
-                    value: _selectedServiceId,
+                    initialValue: _selectedServiceId,
                     isExpanded: true,
-                    decoration: const InputDecoration(
-                      border: OutlineInputBorder(),
-                      hintText: AppStrings.selectService,
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      hintText: AppLocalizations.of(context)!.selectService,
                     ),
                     items: _services
                         .map((s) => DropdownMenuItem(
@@ -845,7 +845,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
                             ))
                         .toList(),
                     validator: (v) =>
-                        v == null ? AppStrings.selectService : null,
+                        v == null ? AppLocalizations.of(context)!.selectService : null,
                     onChanged: (value) {
                       setState(() {
                         _selectedServiceId = value;
@@ -858,7 +858,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
             const SizedBox(height: 20),
 
             // --- Subcategory ---
-            Text(AppStrings.subcategory,
+            Text(AppLocalizations.of(context)!.subcategory,
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -867,13 +867,13 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
             _isLoadingSubcategories
                 ? const Center(child: CircularProgressIndicator())
                 : DropdownButtonFormField<String>(
-                    value: _selectedSubcategoryId,
+                    initialValue: _selectedSubcategoryId,
                     isExpanded: true,
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       hintText: _subcategories.isEmpty
-                          ? AppStrings.noSubcategories
-                          : AppStrings.selectSubcategory,
+                          ? AppLocalizations.of(context)!.noSubcategories
+                          : AppLocalizations.of(context)!.selectSubcategory,
                     ),
                     items: _subcategories
                         .map((s) => DropdownMenuItem(
@@ -882,7 +882,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
                             ))
                         .toList(),
                     validator: (v) => _subcategories.isNotEmpty && v == null
-                        ? AppStrings.selectSubcategory
+                        ? AppLocalizations.of(context)!.selectSubcategory
                         : null,
                     onChanged: (value) {
                       setState(() {
@@ -893,7 +893,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
             const SizedBox(height: 20),
 
             // --- Solution ---
-            Text(AppStrings.solutionDescription,
+            Text(AppLocalizations.of(context)!.solutionDescription,
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -902,12 +902,12 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
             TextFormField(
               controller: _solutionController,
               maxLines: 6,
-              decoration: const InputDecoration(
-                border: OutlineInputBorder(),
-                hintText: AppStrings.solutionHint,
+              decoration: InputDecoration(
+                border: const OutlineInputBorder(),
+                hintText: AppLocalizations.of(context)!.solutionHint,
               ),
               validator: (v) => (v == null || v.trim().isEmpty)
-                  ? AppStrings.enterSolutionDescription
+                  ? AppLocalizations.of(context)!.enterSolutionDescription
                   : null,
             ),
             const SizedBox(height: 32),
@@ -925,7 +925,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
                             strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.check_circle),
                 label: Text(
-                    _isSaving ? AppStrings.saving : AppStrings.resolveTicket),
+                    _isSaving ? AppLocalizations.of(context)!.saving : AppLocalizations.of(context)!.resolveTicket),
               ),
             ),
           ],
@@ -961,8 +961,8 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
 
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text(AppStrings.ticketResolvedSuccessfully),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.ticketResolvedSuccessfully),
           backgroundColor: Colors.green,
         ),
       );

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:itop_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_strings.dart';
 import '../models/asset.dart';
 import '../providers/asset_provider.dart';
 import '../theme/app_theme.dart';
@@ -102,45 +102,45 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
                   const SizedBox(height: 16),
 
                   // Informazioni generali
-                  _buildSection(AppStrings.generalInformation, [
+                  _buildSection(AppLocalizations.of(context)!.generalInformation, [
                     _buildDetailRow(
-                        Icons.business, AppStrings.organization, asset.orgName),
-                    _buildDetailRow(Icons.category, AppStrings.type,
+                        Icons.business, AppLocalizations.of(context)!.organization, asset.orgName),
+                    _buildDetailRow(Icons.category, AppLocalizations.of(context)!.type,
                         asset.friendlyClassName),
                     _buildDetailRow(
-                        Icons.info_outline, AppStrings.status, asset.status),
-                    _buildDetailRow(Icons.priority_high, AppStrings.criticality,
+                        Icons.info_outline, AppLocalizations.of(context)!.status, asset.status),
+                    _buildDetailRow(Icons.priority_high, AppLocalizations.of(context)!.criticality,
                         asset.businessCriticity),
                   ]),
 
                   const SizedBox(height: 16),
 
                   // Informazioni hardware
-                  _buildSection(AppStrings.hardware, [
-                    _buildDetailRow(Icons.branding_watermark, AppStrings.brand,
+                  _buildSection(AppLocalizations.of(context)!.hardware, [
+                    _buildDetailRow(Icons.branding_watermark, AppLocalizations.of(context)!.brand,
                         asset.brand),
                     _buildDetailRow(
-                        Icons.devices, AppStrings.model, asset.model),
+                        Icons.devices, AppLocalizations.of(context)!.model, asset.model),
                     _buildDetailRow(
-                        Icons.tag, AppStrings.serialNumber, asset.serialNumber),
+                        Icons.tag, AppLocalizations.of(context)!.serialNumber, asset.serialNumber),
                     _buildDetailRow(Icons.confirmation_number,
-                        AppStrings.assetNumber, asset.assetNumber),
+                        AppLocalizations.of(context)!.assetNumber, asset.assetNumber),
                   ]),
 
                   const SizedBox(height: 16),
 
                   // Posizione
-                  _buildSection(AppStrings.location, [
-                    _buildDetailRow(Icons.location_on, AppStrings.locationName,
+                  _buildSection(AppLocalizations.of(context)!.location, [
+                    _buildDetailRow(Icons.location_on, AppLocalizations.of(context)!.locationName,
                         asset.locationName),
                     _buildDetailRow(Icons.calendar_today,
-                        AppStrings.inProductionSince, asset.move2production),
+                        AppLocalizations.of(context)!.inProductionSince, asset.move2production),
                   ]),
 
                   // Description
                   if (asset.description.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _buildSection(AppStrings.description, []),
+                    _buildSection(AppLocalizations.of(context)!.description, []),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(asset.description),
@@ -271,7 +271,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppStrings.additionalDetails,
+          AppLocalizations.of(context)!.additionalDetails,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: AppTheme.primaryColor,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../l10n/app_strings.dart';
+import 'package:itop_mobile/l10n/app_localizations.dart';
 import 'ticket_list_screen.dart';
 import 'asset_list_screen.dart';
 import 'settings_screen.dart';
@@ -14,10 +14,10 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _screens = const [
-    TicketListScreen(),
-    AssetListScreen(),
-    SettingsScreen(),
+  final List<Widget> _screens = [
+    const TicketListScreen(),
+    const AssetListScreen(),
+    const SettingsScreen(),
   ];
 
   @override
@@ -34,21 +34,21 @@ class _HomeScreenState extends State<HomeScreen> {
             _currentIndex = index;
           });
         },
-        items: const [
-          BottomNavigationBarItem(
+        items: [
+          const BottomNavigationBarItem(
             icon: Icon(Icons.confirmation_number),
             activeIcon: Icon(Icons.confirmation_number_rounded),
             label: 'Ticket',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             icon: Icon(Icons.devices_other),
             activeIcon: Icon(Icons.devices_other_rounded),
             label: 'Asset',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            activeIcon: Icon(Icons.settings_rounded),
-            label: AppStrings.settings,
+            icon: const Icon(Icons.settings),
+            activeIcon: const Icon(Icons.settings_rounded),
+            label: AppLocalizations.of(context)!.settings,
           ),
         ],
       ),

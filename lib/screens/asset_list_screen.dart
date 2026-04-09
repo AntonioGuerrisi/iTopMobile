@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:itop_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_strings.dart';
 import '../providers/asset_provider.dart';
 import '../models/asset.dart';
 import '../widgets/asset_card.dart';
@@ -43,9 +43,9 @@ class _AssetListScreenState extends State<AssetListScreen> {
                 controller: _searchController,
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  hintText: AppStrings.searchAssets,
-                  hintStyle: TextStyle(color: Colors.white70),
+                decoration: InputDecoration(
+                  hintText: AppLocalizations.of(context)!.searchAssets,
+                  hintStyle: const TextStyle(color: Colors.white70),
                   border: InputBorder.none,
                   filled: false,
                 ),
@@ -53,7 +53,7 @@ class _AssetListScreenState extends State<AssetListScreen> {
                   context.read<AssetProvider>().searchAssets(value);
                 },
               )
-            : const Text(AppStrings.assets),
+            : Text(AppLocalizations.of(context)!.assets),
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -69,14 +69,14 @@ class _AssetListScreenState extends State<AssetListScreen> {
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.filter_list),
-            tooltip: AppStrings.filterByType,
+            tooltip: AppLocalizations.of(context)!.filterByType,
             onSelected: (value) {
               context.read<AssetProvider>().filterByClass(value);
             },
             itemBuilder: (context) => [
-              const PopupMenuItem(
+              PopupMenuItem(
                 value: 'all',
-                child: Text(AppStrings.all),
+                child: Text(AppLocalizations.of(context)!.all),
               ),
               const PopupMenuDivider(),
               ...AssetProvider.assetClasses.map(
@@ -108,13 +108,13 @@ class _AssetListScreenState extends State<AssetListScreen> {
       body: Consumer<AssetProvider>(
         builder: (context, provider, _) {
           if (provider.isLoading && provider.assets.isEmpty) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(),
-                  SizedBox(height: 16),
-                  Text(AppStrings.loading),
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(AppLocalizations.of(context)!.loading),
                 ],
               ),
             );
@@ -138,7 +138,7 @@ class _AssetListScreenState extends State<AssetListScreen> {
                     ElevatedButton.icon(
                       onPressed: () => provider.loadAssets(),
                       icon: const Icon(Icons.refresh),
-                      label: const Text(AppStrings.retry),
+                      label: Text(AppLocalizations.of(context)!.retry),
                     ),
                   ],
                 ),
@@ -163,7 +163,7 @@ class _AssetListScreenState extends State<AssetListScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        '${AppStrings.selectedFilter} ${provider.classFilter}',
+                        '${AppLocalizations.of(context)!.selectedFilter} ${provider.classFilter}',
                         style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                       const Spacer(),
@@ -182,7 +182,7 @@ class _AssetListScreenState extends State<AssetListScreen> {
                 child: Row(
                   children: [
                     Text(
-                      '${provider.assets.length}${AppStrings.assetsCountSuffix}',
+                      '${provider.assets.length}${AppLocalizations.of(context)!.assetsCountSuffix}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Colors.grey[600],
                           ),
@@ -210,7 +210,7 @@ class _AssetListScreenState extends State<AssetListScreen> {
                                 size: 64, color: Colors.grey[400]),
                             const SizedBox(height: 16),
                             Text(
-                              AppStrings.noAssetsFound,
+                              AppLocalizations.of(context)!.noAssetsFound,
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                           ],

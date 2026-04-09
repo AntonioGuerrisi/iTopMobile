@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:itop_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_strings.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_logo.dart';
@@ -43,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(auth.errorMessage ?? AppStrings.loginFailed),
+          content: Text(auth.errorMessage ?? AppLocalizations.of(context)!.loginFailed),
           backgroundColor: AppTheme.errorColor,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -73,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const AppLogo(size: 100),
                   const SizedBox(height: 8),
                   Text(
-                    AppStrings.ticketAssetManagement,
+                    AppLocalizations.of(context)!.ticketAssetManagement,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Colors.grey[600],
@@ -84,18 +84,18 @@ class _LoginScreenState extends State<LoginScreen> {
                   // URL del server
                   TextFormField(
                     controller: _serverUrlController,
-                    decoration: const InputDecoration(
-                      labelText: AppStrings.iTopServerUrl,
-                      hintText: AppStrings.serverUrlHint,
-                      prefixIcon: Icon(Icons.dns),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.iTopServerUrl,
+                      hintText: AppLocalizations.of(context)!.serverUrlHint,
+                      prefixIcon: const Icon(Icons.dns),
                     ),
                     keyboardType: TextInputType.url,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return AppStrings.enterServerUrl;
+                        return AppLocalizations.of(context)!.enterServerUrl;
                       }
                       if (!value.startsWith('https://')) {
-                        return AppStrings.secureUrlRequirement;
+                        return AppLocalizations.of(context)!.secureUrlRequirement;
                       }
                       return null;
                     },
@@ -105,14 +105,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Username
                   TextFormField(
                     controller: _usernameController,
-                    decoration: const InputDecoration(
-                      labelText: AppStrings.username,
-                      prefixIcon: Icon(Icons.person),
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context)!.username,
+                      prefixIcon: const Icon(Icons.person),
                     ),
                     textInputAction: TextInputAction.next,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return AppStrings.enterUsername;
+                        return AppLocalizations.of(context)!.enterUsername;
                       }
                       return null;
                     },
@@ -123,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
-                      labelText: AppStrings.password,
+                      labelText: AppLocalizations.of(context)!.password,
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -143,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onFieldSubmitted: (_) => _login(),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return AppStrings.enterPassword;
+                        return AppLocalizations.of(context)!.enterPassword;
                       }
                       return null;
                     },
@@ -161,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           });
                         },
                       ),
-                      const Text(AppStrings.rememberMe),
+                      Text(AppLocalizations.of(context)!.rememberMe),
                     ],
                   ),
                   const SizedBox(height: 24),
@@ -181,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : const Text(AppStrings.login),
+                          : Text(AppLocalizations.of(context)!.login),
                     ),
                   ),
 
@@ -194,8 +194,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         if (mounted) {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: const Text(
-                                AppStrings.certificatePinResetMessage,
+                              content: Text(
+                                AppLocalizations.of(context)!.certificatePinResetMessage,
                               ),
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
@@ -206,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                       },
                       icon: const Icon(Icons.refresh),
-                      label: const Text(AppStrings.resetCertificatePin),
+                      label: Text(AppLocalizations.of(context)!.resetCertificatePin),
                     ),
                   ],
                 ],

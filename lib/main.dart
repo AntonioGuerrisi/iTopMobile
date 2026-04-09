@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:itop_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
+import 'providers/locale_provider.dart';
 import 'providers/ticket_provider.dart';
 import 'providers/asset_provider.dart';
 import 'screens/login_screen.dart';
@@ -20,6 +22,7 @@ class ITopMobileApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => LocaleProvider()),
         ChangeNotifierProxyProvider<AuthProvider, TicketProvider>(
           create: (_) => TicketProvider(),
           update: (_, auth, tickets) => tickets!..updateAuth(auth),
@@ -29,17 +32,19 @@ class ITopMobileApp extends StatelessWidget {
           update: (_, auth, assets) => assets!..updateAuth(auth),
         ),
       ],
-      child: Consumer<AuthProvider>(
-        builder: (context, auth, _) {
+      child: Consumer2<AuthProvider, LocaleProvider>(
+        builder: (context, auth, localeProvider, _) {
           return MaterialApp(
             title: 'iTop Mobile',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: ThemeMode.system,
-            home: auth.isAuthenticated
-                ? const HomeScreen()
-                : const LoginScreen(),
+            locale: localeProvider.locale,
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
+            home:
+                auth.isAuthenticated ? const HomeScreen() : const LoginScreen(),
           );
         },
       ),

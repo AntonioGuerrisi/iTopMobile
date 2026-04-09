@@ -1,6 +1,13 @@
 # Changelog
 
-## [Unreleased] - 2026-04-09
+## [0.3.1] - 2026-04-10
+### Added
+- Added Flutter localization support with ARB files and generated `AppLocalizations` in `lib/l10n`
+- Added Italian and English translations for all user-facing text in the app (login, tickets, assets, settings)
+### Changed
+- Updated `SettingsScreen` to allow switching between English and Italian languages
+
+## [0.3.0] - 2026-04-09
 ### Changed
 - Translated README to English for global publication
 - Updated UI text and app strings to English across login, tickets, assets, and settings screens

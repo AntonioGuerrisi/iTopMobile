@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../l10n/app_strings.dart';
+import 'package:itop_mobile/l10n/app_localizations.dart';
 import '../theme/app_theme.dart';
 
 class StatusFilterChips extends StatelessWidget {
@@ -27,42 +27,42 @@ class StatusFilterChips extends StatelessWidget {
         children: [
           _buildChip(
             context,
-            label: AppStrings.allStatuses,
+            label: AppLocalizations.of(context)!.allStatuses,
             count: totalCount,
             status: 'all',
             color: AppTheme.primaryColor,
           ),
           _buildChip(
             context,
-            label: AppStrings.newStatus,
+            label: AppLocalizations.of(context)!.newStatus,
             count: statusCounts['new'] ?? 0,
             status: 'new',
             color: AppTheme.statusNew,
           ),
           _buildChip(
             context,
-            label: AppStrings.assignedStatus,
+            label: AppLocalizations.of(context)!.assignedStatus,
             count: statusCounts['assigned'] ?? 0,
             status: 'assigned',
             color: AppTheme.statusAssigned,
           ),
           _buildChip(
             context,
-            label: AppStrings.pendingStatus,
+            label: AppLocalizations.of(context)!.pendingStatus,
             count: statusCounts['pending'] ?? 0,
             status: 'pending',
             color: AppTheme.statusPending,
           ),
           _buildChip(
             context,
-            label: AppStrings.resolvedStatus,
+            label: AppLocalizations.of(context)!.resolvedStatus,
             count: statusCounts['resolved'] ?? 0,
             status: 'resolved',
             color: AppTheme.statusResolved,
           ),
           _buildChip(
             context,
-            label: AppStrings.closedStatus,
+            label: AppLocalizations.of(context)!.closedStatus,
             count: statusCounts['closed'] ?? 0,
             status: 'closed',
             color: AppTheme.statusClosed,

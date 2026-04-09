@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:itop_mobile/l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
-import '../l10n/app_strings.dart';
 import '../models/ticket.dart';
 import '../models/ticket_log.dart';
 import '../providers/ticket_provider.dart';
@@ -25,7 +25,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
   bool _isLoading = true;
 
   // Filtri log
-  Set<LogType> _activeLogFilters = {LogType.public, LogType.private_};
+  final Set<LogType> _activeLogFilters = {LogType.public, LogType.private_};
 
   @override
   void initState() {
@@ -70,10 +70,10 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           indicatorColor: Colors.white,
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
-          tabs: const [
-            Tab(text: AppStrings.details),
-            Tab(text: AppStrings.description),
-            Tab(text: AppStrings.showLogs),
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.details),
+            Tab(text: AppLocalizations.of(context)!.description),
+            Tab(text: AppLocalizations.of(context)!.showLogs),
           ],
         ),
       ),
@@ -91,7 +91,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           ? FloatingActionButton.extended(
               onPressed: () => _openActions(ticket),
               icon: const Icon(Icons.edit),
-              label: const Text(AppStrings.actions),
+              label: Text(AppLocalizations.of(context)!.actions),
             )
           : null,
     );
@@ -140,47 +140,47 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           const SizedBox(height: 24),
 
           // Informazioni principali
-          _buildInfoSection(AppStrings.generalInformation, [
+          _buildInfoSection(AppLocalizations.of(context)!.generalInformation, [
             _buildInfoRow(
-                Icons.business, AppStrings.organization, ticket.orgName),
+                Icons.business, AppLocalizations.of(context)!.organization, ticket.orgName),
             _buildInfoRow(
-                Icons.person_outline, AppStrings.requester, ticket.callerName),
-            _buildInfoRow(Icons.group, AppStrings.team, ticket.teamName),
-            _buildInfoRow(Icons.person, AppStrings.agent, ticket.agentName),
-            _buildInfoRow(Icons.miscellaneous_services, AppStrings.service,
+                Icons.person_outline, AppLocalizations.of(context)!.requester, ticket.callerName),
+            _buildInfoRow(Icons.group, AppLocalizations.of(context)!.team, ticket.teamName),
+            _buildInfoRow(Icons.person, AppLocalizations.of(context)!.agent, ticket.agentName),
+            _buildInfoRow(Icons.miscellaneous_services, AppLocalizations.of(context)!.service,
                 ticket.serviceName),
-            _buildInfoRow(Icons.category, AppStrings.subcategory,
+            _buildInfoRow(Icons.category, AppLocalizations.of(context)!.subcategory,
                 ticket.serviceSubcategoryName),
-            _buildInfoRow(Icons.source, AppStrings.origin, ticket.origin),
+            _buildInfoRow(Icons.source, AppLocalizations.of(context)!.origin, ticket.origin),
           ]),
 
           const SizedBox(height: 16),
 
           // Impatto e urgenza
-          _buildInfoSection(AppStrings.classification, [
+          _buildInfoSection(AppLocalizations.of(context)!.classification, [
             _buildInfoRow(
-                Icons.priority_high, AppStrings.priority, ticket.priority),
-            _buildInfoRow(Icons.speed, AppStrings.urgency, ticket.urgency),
-            _buildInfoRow(Icons.flash_on, AppStrings.impact, ticket.impact),
+                Icons.priority_high, AppLocalizations.of(context)!.priority, ticket.priority),
+            _buildInfoRow(Icons.speed, AppLocalizations.of(context)!.urgency, ticket.urgency),
+            _buildInfoRow(Icons.flash_on, AppLocalizations.of(context)!.impact, ticket.impact),
           ]),
 
           const SizedBox(height: 16),
 
           // Date
-          _buildInfoSection(AppStrings.dates, [
-            _buildInfoRow(Icons.play_arrow, AppStrings.opening,
+          _buildInfoSection(AppLocalizations.of(context)!.dates, [
+            _buildInfoRow(Icons.play_arrow, AppLocalizations.of(context)!.opening,
                 _formatDate(ticket.startDate)),
-            _buildInfoRow(Icons.update, AppStrings.lastUpdate,
+            _buildInfoRow(Icons.update, AppLocalizations.of(context)!.lastUpdate,
                 _formatDate(ticket.lastUpdate)),
             if (ticket.closeDate.isNotEmpty)
-              _buildInfoRow(Icons.check_circle, AppStrings.closure,
+              _buildInfoRow(Icons.check_circle, AppLocalizations.of(context)!.closure,
                   _formatDate(ticket.closeDate)),
           ]),
 
           // Risoluzione
           if (ticket.resolution.isNotEmpty) ...[
             const SizedBox(height: 16),
-            _buildInfoSection(AppStrings.resolution, []),
+            _buildInfoSection(AppLocalizations.of(context)!.resolution, []),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(ticket.resolution),
@@ -200,7 +200,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
             Icon(Icons.description, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              AppStrings.noDescriptionAvailable,
+              AppLocalizations.of(context)!.noDescriptionAvailable,
               style: TextStyle(color: Colors.grey[600]),
             ),
           ],
@@ -226,7 +226,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
             Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              AppStrings.noLogsAvailable,
+              AppLocalizations.of(context)!.noLogsAvailable,
               style: TextStyle(color: Colors.grey[600]),
             ),
           ],
@@ -250,19 +250,19 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
                   runSpacing: 4,
                   children: [
                     _buildLogFilterChip(
-                      label: AppStrings.publicLabel,
+                      label: AppLocalizations.of(context)!.publicLabel,
                       icon: Icons.public,
                       type: LogType.public,
                       color: Colors.blue,
                     ),
                     _buildLogFilterChip(
-                      label: AppStrings.privateLabel,
+                      label: AppLocalizations.of(context)!.privateLabel,
                       icon: Icons.lock,
                       type: LogType.private_,
                       color: Colors.orange,
                     ),
                     _buildLogFilterChip(
-                      label: AppStrings.activityLabel,
+                      label: AppLocalizations.of(context)!.activityLabel,
                       icon: Icons.history,
                       type: LogType.activity,
                       color: Colors.green,
@@ -286,7 +286,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           child: filteredLogs.isEmpty
               ? Center(
                   child: Text(
-                    AppStrings.noLogsWithFilters,
+                    AppLocalizations.of(context)!.noLogsWithFilters,
                     style: TextStyle(color: Colors.grey[500]),
                   ),
                 )

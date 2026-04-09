@@ -53,6 +53,26 @@ class StorageService {
     await _secureStorage.delete(key: _keyPassword);
   }
 
+  static const _keyLanguageCode = 'app_language_code';
+
+  /// Saves the selected app language code.
+  Future<void> saveLanguageCode(String languageCode) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyLanguageCode, languageCode);
+  }
+
+  /// Loads the selected app language code.
+  Future<String?> loadLanguageCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyLanguageCode);
+  }
+
+  /// Clears the selected app language.
+  Future<void> clearLanguageCode() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_keyLanguageCode);
+  }
+
   /// Checks whether saved credentials exist
   Future<bool> hasCredentials() async {
     final prefs = await SharedPreferences.getInstance();

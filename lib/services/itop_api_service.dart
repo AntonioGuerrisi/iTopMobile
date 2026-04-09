@@ -203,7 +203,7 @@ class ITopApiService {
         'WHERE objclass = \'UserRequest\' AND objkey = \'$safeId\'';
 
     // Executes each query in a fault-tolerant way
-    Future<Map<String, dynamic>> _safeCall(Map<String, dynamic> data) async {
+    Future<Map<String, dynamic>> safeCall(Map<String, dynamic> data) async {
       try {
         return await _callApi(operation: 'core/get', data: data);
       } catch (_) {
@@ -213,37 +213,37 @@ class ITopApiService {
 
     // Queries subclasses that contain useful information
     final futures = <Future<Map<String, dynamic>>>[
-      _safeCall({
+      safeCall({
         'class': 'CMDBChangeOpCreate',
         'key': 'SELECT CMDBChangeOpCreate $oqlWhere',
         'output_fields': 'date,userinfo',
       }),
-      _safeCall({
+      safeCall({
         'class': 'CMDBChangeOpSetAttributeScalar',
         'key': 'SELECT CMDBChangeOpSetAttributeScalar $oqlWhere',
         'output_fields': 'date,userinfo,attcode,oldvalue,newvalue',
       }),
-      _safeCall({
+      safeCall({
         'class': 'CMDBChangeOpSetAttributeHTML',
         'key': 'SELECT CMDBChangeOpSetAttributeHTML $oqlWhere',
         'output_fields': 'date,userinfo,attcode',
       }),
-      _safeCall({
+      safeCall({
         'class': 'CMDBChangeOpSetAttributeText',
         'key': 'SELECT CMDBChangeOpSetAttributeText $oqlWhere',
         'output_fields': 'date,userinfo,attcode',
       }),
-      _safeCall({
+      safeCall({
         'class': 'CMDBChangeOpSetAttributeLongText',
         'key': 'SELECT CMDBChangeOpSetAttributeLongText $oqlWhere',
         'output_fields': 'date,userinfo,attcode',
       }),
-      _safeCall({
+      safeCall({
         'class': 'CMDBChangeOpSetAttributeBlob',
         'key': 'SELECT CMDBChangeOpSetAttributeBlob $oqlWhere',
         'output_fields': 'date,userinfo,attcode,filename',
       }),
-      _safeCall({
+      safeCall({
         'class': 'CMDBChangeOpPlugin',
         'key': 'SELECT CMDBChangeOpPlugin $oqlWhere',
         'output_fields': 'date,userinfo,description',

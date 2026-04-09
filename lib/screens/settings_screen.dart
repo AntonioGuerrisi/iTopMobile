@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:itop_mobile/l10n/app_localizations.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
-import '../l10n/app_strings.dart';
 import '../providers/auth_provider.dart';
+import '../providers/locale_provider.dart';
 import '../theme/app_theme.dart';
 
 class SettingsScreen extends StatelessWidget {
@@ -11,10 +12,16 @@ class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
+    final localeProvider = context.watch<LocaleProvider>();
+    final currentLocale = localeProvider.locale;
+    final currentLocaleCode = LocaleProvider.supportedLanguageCodes
+            .contains(currentLocale.languageCode)
+        ? currentLocale.languageCode
+        : AppLocalizations.supportedLocales.first.languageCode;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.settings),
+        title: Text(AppLocalizations.of(context)!.settings),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -90,13 +97,13 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         ListTile(
                           leading: const Icon(Icons.info_outline),
-                          title: const Text(AppStrings.version),
+                          title: Text(AppLocalizations.of(context)!.version),
                           subtitle: Text(version),
                         ),
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.build_outlined),
-                          title: const Text(AppStrings.build),
+                          title: Text(AppLocalizations.of(context)!.build),
                           subtitle: Text(buildNumber),
                         ),
                       ],
@@ -105,8 +112,36 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const Divider(height: 1),
                 ListTile(
+                  leading: const Icon(Icons.language),
+                  title: Text(AppLocalizations.of(context)!.language),
+                  subtitle: Text(_languageName(context, currentLocaleCode)),
+                  trailing: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      value: currentLocaleCode,
+                      items: [
+                        DropdownMenuItem(
+                          value: 'en',
+                          child: Text(AppLocalizations.of(context)!.english),
+                        ),
+                        DropdownMenuItem(
+                          value: 'it',
+                          child: Text(AppLocalizations.of(context)!.italian),
+                        ),
+                      ],
+                      onChanged: (value) {
+                        if (value != null) {
+                          context
+                              .read<LocaleProvider>()
+                              .setLocale(Locale(value));
+                        }
+                      },
+                    ),
+                  ),
+                ),
+                const Divider(height: 1),
+                ListTile(
                   leading: const Icon(Icons.dns),
-                  title: const Text(AppStrings.server),
+                  title: Text(AppLocalizations.of(context)!.server),
                   subtitle: Text(auth.serverUrl),
                 ),
                 const Divider(height: 1),
@@ -126,9 +161,9 @@ class SettingsScreen extends StatelessWidget {
             child: OutlinedButton.icon(
               onPressed: () => _confirmLogout(context),
               icon: const Icon(Icons.logout, color: Colors.red),
-              label: const Text(
-                AppStrings.signOut,
-                style: TextStyle(color: Colors.red),
+              label: Text(
+                AppLocalizations.of(context)!.signOut,
+                style: const TextStyle(color: Colors.red),
               ),
               style: OutlinedButton.styleFrom(
                 side: const BorderSide(color: Colors.red),
@@ -144,25 +179,35 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
+  static String _languageName(BuildContext context, String languageCode) {
+    switch (languageCode) {
+      case 'it':
+        return AppLocalizations.of(context)!.italian;
+      case 'en':
+      default:
+        return AppLocalizations.of(context)!.english;
+    }
+  }
+
   void _confirmLogout(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text(AppStrings.confirm),
-        content: const Text(AppStrings.confirmSignOut),
+        title: Text(AppLocalizations.of(context)!.confirm),
+        content: Text(AppLocalizations.of(context)!.confirmSignOut),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text(AppStrings.cancel),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
               context.read<AuthProvider>().logout();
             },
-            child: const Text(
-              AppStrings.signOut,
-              style: TextStyle(color: Colors.red),
+            child: Text(
+              AppLocalizations.of(context)!.signOut,
+              style: const TextStyle(color: Colors.red),
             ),
           ),
         ],
