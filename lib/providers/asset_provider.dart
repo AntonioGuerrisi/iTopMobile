@@ -3,7 +3,7 @@ import '../models/asset.dart';
 import '../providers/auth_provider.dart';
 import '../services/itop_api_service.dart';
 
-/// Provider per la gestione degli asset
+/// Provider for asset management
 class AssetProvider with ChangeNotifier {
   ITopApiService? _apiService;
 
@@ -14,7 +14,7 @@ class AssetProvider with ChangeNotifier {
   String _searchQuery = '';
   String _classFilter = 'all';
 
-  /// Classi di asset disponibili in iTop
+  /// Asset classes available in iTop
   static const List<String> assetClasses = [
     'Server',
     'VirtualMachine',
@@ -30,16 +30,17 @@ class AssetProvider with ChangeNotifier {
     'Rack',
   ];
 
-  List<Asset> get assets => _filteredAssets.isEmpty && _searchQuery.isEmpty && _classFilter == 'all'
-      ? _assets
-      : _filteredAssets;
+  List<Asset> get assets =>
+      _filteredAssets.isEmpty && _searchQuery.isEmpty && _classFilter == 'all'
+          ? _assets
+          : _filteredAssets;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
   String get searchQuery => _searchQuery;
   String get classFilter => _classFilter;
   int get totalAssets => _assets.length;
 
-  /// Aggiorna il riferimento all'autenticazione
+  /// Updates the authentication reference
   void updateAuth(AuthProvider auth) {
     _apiService = auth.apiService;
     if (!auth.isAuthenticated) {
@@ -48,7 +49,7 @@ class AssetProvider with ChangeNotifier {
     }
   }
 
-  /// Carica tutti gli asset da iTop
+  /// Loads all assets from iTop
   Future<void> loadAssets() async {
     if (_apiService == null) return;
 
@@ -63,14 +64,14 @@ class AssetProvider with ChangeNotifier {
     } on ITopApiException catch (e) {
       _errorMessage = e.message;
     } catch (e) {
-      _errorMessage = 'Errore nel caricamento degli asset: $e';
+      _errorMessage = 'Error loading assets: $e';
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  /// Cerca asset
+  /// Searches assets
   Future<void> searchAssets(String query) async {
     _searchQuery = query;
 
@@ -89,21 +90,21 @@ class AssetProvider with ChangeNotifier {
       final result = await _apiService!.searchAssets(query);
       _filteredAssets = _parseAssets(result);
     } catch (e) {
-      _errorMessage = 'Errore nella ricerca: $e';
+      _errorMessage = 'Error searching assets: $e';
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  /// Filtra per classe
+  /// Filters assets by class
   void filterByClass(String className) {
     _classFilter = className;
     _applyFilters();
     notifyListeners();
   }
 
-  /// Applica i filtri correnti
+  /// Applies the current filters
   void _applyFilters() {
     if (_classFilter == 'all' && _searchQuery.isEmpty) {
       _filteredAssets = List.from(_assets);
@@ -118,7 +119,7 @@ class AssetProvider with ChangeNotifier {
     }
   }
 
-  /// Recupera il dettaglio di un asset
+  /// Retrieves asset detail
   Future<Asset?> getAssetDetail(String assetId, String className) async {
     if (_apiService == null) return null;
 
@@ -127,13 +128,13 @@ class AssetProvider with ChangeNotifier {
       final assets = _parseAssets(result);
       return assets.isNotEmpty ? assets.first : null;
     } catch (e) {
-      _errorMessage = 'Errore nel caricamento del dettaglio: $e';
+      _errorMessage = 'Error loading asset details: $e';
       notifyListeners();
       return null;
     }
   }
 
-  /// Parsa la risposta JSON e restituisce una lista di Asset
+  /// Parses the JSON response and returns a list of assets
   List<Asset> _parseAssets(Map<String, dynamic> result) {
     final objects = result['objects'] as Map<String, dynamic>?;
     if (objects == null) return [];
@@ -146,7 +147,7 @@ class AssetProvider with ChangeNotifier {
       ..sort((a, b) => a.name.compareTo(b.name));
   }
 
-  /// Reset del provider
+  /// Resets the provider
   void reset() {
     _assets = [];
     _filteredAssets = [];

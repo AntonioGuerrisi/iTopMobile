@@ -1,4 +1,4 @@
-/// Modello per un Ticket (UserRequest) di iTop
+/// Model for an iTop Ticket (UserRequest)
 class Ticket {
   final String id;
   final String ref;
@@ -63,7 +63,8 @@ class Ticket {
       agentName: _str(fields['agent_id_friendlyname']),
       serviceId: _str(fields['service_id']),
       serviceName: _str(fields['service_id_friendlyname']),
-      serviceSubcategoryName: _str(fields['servicesubcategory_id_friendlyname']),
+      serviceSubcategoryName:
+          _str(fields['servicesubcategory_id_friendlyname']),
       startDate: _str(fields['start_date']),
       lastUpdate: _str(fields['last_update']),
       closeDate: _str(fields['close_date']),
@@ -79,13 +80,13 @@ class Ticket {
     return value.toString();
   }
 
-  /// Mostra il titolo abbreviato
+  /// Returns a shortened title
   String get shortTitle {
     if (title.length <= 60) return title;
     return '${title.substring(0, 57)}...';
   }
 
-  /// Controlla se il ticket è aperto
+  /// Checks if the ticket is open
   bool get isOpen =>
       status.toLowerCase() != 'closed' && status.toLowerCase() != 'chiuso';
 }

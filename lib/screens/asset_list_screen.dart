@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_strings.dart';
 import '../providers/asset_provider.dart';
 import '../models/asset.dart';
 import '../widgets/asset_card.dart';
@@ -43,7 +44,7 @@ class _AssetListScreenState extends State<AssetListScreen> {
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
-                  hintText: 'Cerca asset...',
+                  hintText: AppStrings.searchAssets,
                   hintStyle: TextStyle(color: Colors.white70),
                   border: InputBorder.none,
                   filled: false,
@@ -52,7 +53,7 @@ class _AssetListScreenState extends State<AssetListScreen> {
                   context.read<AssetProvider>().searchAssets(value);
                 },
               )
-            : const Text('Asset'),
+            : const Text(AppStrings.assets),
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -68,14 +69,14 @@ class _AssetListScreenState extends State<AssetListScreen> {
           ),
           PopupMenuButton<String>(
             icon: const Icon(Icons.filter_list),
-            tooltip: 'Filtra per tipo',
+            tooltip: AppStrings.filterByType,
             onSelected: (value) {
               context.read<AssetProvider>().filterByClass(value);
             },
             itemBuilder: (context) => [
               const PopupMenuItem(
                 value: 'all',
-                child: Text('Tutti'),
+                child: Text(AppStrings.all),
               ),
               const PopupMenuDivider(),
               ...AssetProvider.assetClasses.map(
@@ -113,7 +114,7 @@ class _AssetListScreenState extends State<AssetListScreen> {
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text('Caricamento asset...'),
+                  Text(AppStrings.loading),
                 ],
               ),
             );
@@ -137,7 +138,7 @@ class _AssetListScreenState extends State<AssetListScreen> {
                     ElevatedButton.icon(
                       onPressed: () => provider.loadAssets(),
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Riprova'),
+                      label: const Text(AppStrings.retry),
                     ),
                   ],
                 ),
@@ -151,7 +152,8 @@ class _AssetListScreenState extends State<AssetListScreen> {
               if (provider.classFilter != 'all')
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   color: Theme.of(context).colorScheme.primaryContainer,
                   child: Row(
                     children: [
@@ -161,7 +163,7 @@ class _AssetListScreenState extends State<AssetListScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Filtro: ${provider.classFilter}',
+                        '${AppStrings.selectedFilter} ${provider.classFilter}',
                         style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                       const Spacer(),
@@ -175,11 +177,12 @@ class _AssetListScreenState extends State<AssetListScreen> {
 
               // Conteggio
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 child: Row(
                   children: [
                     Text(
-                      '${provider.assets.length} asset',
+                      '${provider.assets.length}${AppStrings.assetsCountSuffix}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Colors.grey[600],
                           ),
@@ -207,7 +210,7 @@ class _AssetListScreenState extends State<AssetListScreen> {
                                 size: 64, color: Colors.grey[400]),
                             const SizedBox(height: 16),
                             Text(
-                              'Nessun asset trovato',
+                              AppStrings.noAssetsFound,
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                           ],

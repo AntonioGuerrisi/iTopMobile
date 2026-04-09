@@ -1,19 +1,26 @@
 # Changelog
 
+## [Unreleased] - 2026-04-09
+### Changed
+- Translated README to English for global publication
+- Updated UI text and app strings to English across login, tickets, assets, and settings screens
+- Centralized user-facing text in `lib/l10n/app_strings.dart`
+- Converted Italian comments and error messages in services, models, and providers to English
+
 ## [0.2.1] - 2026-03-11
 ### Added
-- Numero di build visibile nella schermata Impostazioni
+- Build number visible in the Settings screen
 
 ## [0.2.0] - 2026-03-11
 ### Changed
-- Connessioni HTTP bloccate: l'app accetta esclusivamente URL HTTPS per proteggere le credenziali in transito
-- Username spostato da SharedPreferences a flutter_secure_storage (cifratura nativa OS)
-- Validazione HTTPS aggiunta anche nel servizio API (ITopApiService) come ulteriore protezione
-- Sanitizzazione completa input OQL: escape stringhe, validazione ID numerici e nomi classe per prevenire OQL injection
-- Certificate pinning TOFU: al primo collegamento il fingerprint SHA-256 del certificato viene memorizzato e verificato ad ogni connessione successiva
-- Pulsante "Resetta pin certificato" nella schermata di login in caso di errore SSL (es. rinnovo certificato)
+- Blocked HTTP connections: the app accepts only HTTPS URLs to protect credentials in transit
+- Moved username from SharedPreferences to flutter_secure_storage (native OS encryption)
+- Added HTTPS validation in the API service (`ITopApiService`) as extra protection
+- Fully sanitized OQL input: escaped strings, numeric ID validation, and class name validation to prevent OQL injection
+- TOFU certificate pinning: the certificate SHA-256 fingerprint is stored on first connection and verified on every following connection
+- Added "Reset certificate pin" button on the login screen for SSL errors (e.g. certificate renewal)
 
 ## [0.1.14] - 2026-03-11
 ### Changed
-- Aggiornata sezione build nel README con istruzioni iOS complete (debug, release, IPA)
-- Aggiunta nota sui requisiti macOS/Xcode per i build iOS
+- Updated README build section with complete iOS instructions (debug, release, IPA)
+- Added note about macOS/Xcode requirements for iOS builds

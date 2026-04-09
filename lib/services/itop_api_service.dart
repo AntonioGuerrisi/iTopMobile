@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import '../l10n/app_strings.dart';
 
-/// Servizio per comunicare con le REST API di iTop
+/// Service for communicating with iTop REST APIs
 class ITopApiService {
   final String baseUrl;
   final String username;
   final String password;
 
-  /// Versione dell'API REST di iTop
+  /// iTop REST API version
   static const String apiVersion = '1.3';
 
   ITopApiService({
@@ -17,15 +18,15 @@ class ITopApiService {
   }) {
     if (!baseUrl.startsWith('https://')) {
       throw ArgumentError(
-        'Connessione non sicura: l\'URL deve utilizzare HTTPS.',
+        AppStrings.insecureConnection,
       );
     }
   }
 
-  /// Endpoint REST di iTop
+  /// iTop REST endpoint
   String get _restEndpoint => '$baseUrl/webservices/rest.php';
 
-  /// Sanitizza una stringa per l'uso in query OQL (previene OQL injection)
+  /// Sanitizes a string for use in OQL queries (prevents OQL injection)
   static String _escapeOqlString(String value) {
     return value
         .replaceAll('\\', '\\\\')
@@ -35,23 +36,23 @@ class ITopApiService {
         .replaceAll('\r', '');
   }
 
-  /// Valida che un valore sia un ID numerico valido
+  /// Validates that a value is a valid numeric ID
   static String _validateNumericId(String id) {
     if (!RegExp(r'^\d+$').hasMatch(id)) {
-      throw ArgumentError('ID non valido: deve essere numerico.');
+      throw ArgumentError('Invalid ID: must be numeric.');
     }
     return id;
   }
 
-  /// Valida che un nome di classe iTop contenga solo caratteri alfanumerici
+  /// Validates that an iTop class name contains only alphanumeric characters
   static String _validateClassName(String className) {
     if (!RegExp(r'^[a-zA-Z][a-zA-Z0-9_]*$').hasMatch(className)) {
-      throw ArgumentError('Nome classe non valido: $className');
+      throw ArgumentError('Invalid class name: $className');
     }
     return className;
   }
 
-  /// Esegue una chiamata REST all'API di iTop
+  /// Executes a REST call to the iTop API
   Future<Map<String, dynamic>> _callApi({
     required String operation,
     required Map<String, dynamic> data,
@@ -73,7 +74,7 @@ class ITopApiService {
 
       if (response.statusCode != 200) {
         throw ITopApiException(
-          'Errore HTTP ${response.statusCode}: ${response.reasonPhrase}',
+          'HTTP error ${response.statusCode}: ${response.reasonPhrase}',
           statusCode: response.statusCode,
         );
       }
@@ -82,7 +83,7 @@ class ITopApiService {
 
       if (result['code'] != null && result['code'] != 0) {
         throw ITopApiException(
-          result['message']?.toString() ?? 'Errore sconosciuto dall\'API iTop',
+          result['message']?.toString() ?? AppStrings.apiUnknownError,
           code: result['code'] as int?,
         );
       }
@@ -91,11 +92,11 @@ class ITopApiService {
     } on ITopApiException {
       rethrow;
     } catch (e) {
-      throw ITopApiException('Errore di connessione: $e');
+      throw ITopApiException('${AppStrings.connectionError} $e');
     }
   }
 
-  /// Verifica le credenziali tentando una query leggera
+  /// Verifies credentials by executing a lightweight query
   Future<bool> testLogin() async {
     try {
       await _callApi(
@@ -115,7 +116,7 @@ class ITopApiService {
     }
   }
 
-  /// Recupera l'utente corrente (Person collegata all'utente)
+  /// Retrieves the current user (Person linked to the user)
   Future<Map<String, dynamic>?> getCurrentUser() async {
     try {
       final result = await _callApi(
@@ -140,7 +141,7 @@ class ITopApiService {
 
   // ==================== TICKET ====================
 
-  /// Recupera tutti i ticket (UserRequest)
+  /// Retrieves all tickets (UserRequest)
   Future<Map<String, dynamic>> getTickets({
     String? oqlFilter,
     String outputFields =
@@ -171,7 +172,7 @@ class ITopApiService {
     return await _callApi(operation: 'core/get', data: data);
   }
 
-  /// Recupera un singolo ticket con tutti i dettagli
+  /// Retrieves a single ticket with full details
   Future<Map<String, dynamic>> getTicketDetail(String ticketId) async {
     return await _callApi(
       operation: 'core/get',
@@ -183,7 +184,7 @@ class ITopApiService {
     );
   }
 
-  /// Recupera il log di un ticket (public_log / private_log)
+  /// Retrieves a ticket log (public_log / private_log)
   Future<Map<String, dynamic>> getTicketLog(String ticketId) async {
     return await _callApi(
       operation: 'core/get',
@@ -195,13 +196,13 @@ class ITopApiService {
     );
   }
 
-  /// Recupera la storia delle attività di un ticket dalle sottoclassi CMDBChangeOp
+  /// Retrieves the ticket activity history from CMDBChangeOp subclasses
   Future<List<Map<String, dynamic>>> getTicketHistory(String ticketId) async {
     final safeId = _validateNumericId(ticketId);
     final oqlWhere =
         'WHERE objclass = \'UserRequest\' AND objkey = \'$safeId\'';
 
-    // Esegue ogni query in modo fault-tolerant
+    // Executes each query in a fault-tolerant way
     Future<Map<String, dynamic>> _safeCall(Map<String, dynamic> data) async {
       try {
         return await _callApi(operation: 'core/get', data: data);
@@ -210,7 +211,7 @@ class ITopApiService {
       }
     }
 
-    // Interroga le sottoclassi che contengono informazioni utili
+    // Queries subclasses that contain useful information
     final futures = <Future<Map<String, dynamic>>>[
       _safeCall({
         'class': 'CMDBChangeOpCreate',
@@ -273,7 +274,7 @@ class ITopApiService {
     return allRecords;
   }
 
-  /// Risolve una lista di ID in nomi leggibili per una data classe iTop
+  /// Resolves a list of IDs to readable names for a given iTop class
   Future<Map<String, String>> resolveObjectNames(
       String className, Set<String> ids) async {
     if (ids.isEmpty) return {};
@@ -313,7 +314,7 @@ class ITopApiService {
     }
   }
 
-  /// Cerca ticket per testo
+  /// Searches tickets by text
   Future<Map<String, dynamic>> searchTickets(String searchText) async {
     final escapedText = _escapeOqlString(searchText);
     return getTickets(
@@ -322,7 +323,7 @@ class ITopApiService {
     );
   }
 
-  /// Recupera ticket filtrati per stato
+  /// Retrieves tickets filtered by status
   Future<Map<String, dynamic>> getTicketsByStatus(String status) async {
     return getTickets(
       oqlFilter:
@@ -330,7 +331,7 @@ class ITopApiService {
     );
   }
 
-  /// Recupera il conteggio dei ticket per stato
+  /// Retrieves the ticket count by status
   Future<Map<String, int>> getTicketCountsByStatus() async {
     final statuses = ['new', 'assigned', 'pending', 'resolved', 'closed'];
     final counts = <String, int>{};
@@ -352,7 +353,7 @@ class ITopApiService {
 
   // ==================== TICKET UPDATE ====================
 
-  /// Aggiunge un'entry al log pubblico di un ticket
+  /// Adds a public log entry for a ticket
   Future<Map<String, dynamic>> addPublicLogEntry(
       String ticketId, String message) async {
     return await _callApi(
@@ -374,7 +375,7 @@ class ITopApiService {
     );
   }
 
-  /// Aggiunge un'entry al log privato di un ticket
+  /// Adds a private log entry for a ticket
   Future<Map<String, dynamic>> addPrivateLogEntry(
       String ticketId, String message) async {
     return await _callApi(
@@ -396,7 +397,7 @@ class ITopApiService {
     );
   }
 
-  /// Applica uno stimulus (transizione di stato) a un ticket
+  /// Applies a stimulus (state transition) to a ticket
   Future<Map<String, dynamic>> applyStimulus(
     String ticketId,
     String stimulus, {
@@ -413,7 +414,7 @@ class ITopApiService {
     return await _callApi(operation: 'core/apply_stimulus', data: data);
   }
 
-  /// Aggiorna i campi di un ticket (core/update generico)
+  /// Updates ticket fields (generic core/update)
   Future<Map<String, dynamic>> updateTicket(
     String ticketId,
     Map<String, dynamic> fields,
@@ -430,7 +431,7 @@ class ITopApiService {
     );
   }
 
-  /// Recupera la lista dei servizi disponibili
+  /// Retrieves the list of available services
   Future<List<Map<String, dynamic>>> getServices({String? orgId}) async {
     String oql = 'SELECT Service';
     if (orgId != null && orgId.isNotEmpty) {
@@ -448,7 +449,7 @@ class ITopApiService {
     return _parseObjectList(result);
   }
 
-  /// Recupera le sottocategorie di un servizio
+  /// Retrieves service subcategories
   Future<List<Map<String, dynamic>>> getServiceSubcategories(
       String serviceId) async {
     final safeId = _validateNumericId(serviceId);
@@ -463,7 +464,7 @@ class ITopApiService {
     return _parseObjectList(result);
   }
 
-  /// Recupera la lista dei team
+  /// Retrieves the team list
   Future<List<Map<String, dynamic>>> getTeams() async {
     final result = await _callApi(
       operation: 'core/get',
@@ -476,7 +477,7 @@ class ITopApiService {
     return _parseObjectList(result);
   }
 
-  /// Recupera i membri (Person) di un team
+  /// Retrieves team members (Person) for a team
   Future<List<Map<String, dynamic>>> getTeamMembers(String teamId) async {
     final safeId = _validateNumericId(teamId);
     final result = await _callApi(
@@ -506,7 +507,7 @@ class ITopApiService {
     return members;
   }
 
-  /// Parsa una risposta iTop in lista di {id, name}
+  /// Parses an iTop response into a list of {id, name}
   List<Map<String, dynamic>> _parseObjectList(Map<String, dynamic> result) {
     final objects = result['objects'] as Map<String, dynamic>?;
     if (objects == null) return [];
@@ -523,7 +524,7 @@ class ITopApiService {
 
   // ==================== INCIDENT ====================
 
-  /// Recupera tutti gli Incident
+  /// Retrieves all incidents
   Future<Map<String, dynamic>> getIncidents({
     String? oqlFilter,
     String outputFields =
@@ -548,17 +549,17 @@ class ITopApiService {
 
   // ==================== ASSET ====================
 
-  /// Campi comuni a tutti i FunctionalCI
+  /// Common fields for all FunctionalCI objects
   static const String _baseCIFields = 'name,org_id_friendlyname,description,'
       'business_criticity,move2production,finalclass';
 
-  /// Campi aggiuntivi disponibili su PhysicalDevice e sottoclassi
+  /// Additional fields available for PhysicalDevice and subclasses
   static const String _physicalDeviceFields =
       ',status,serialnumber,asset_number,'
       'brand_id_friendlyname,model_id_friendlyname,'
       'location_id_friendlyname';
 
-  /// Classi che ereditano da PhysicalDevice e hanno il campo status
+  /// Classes that inherit from PhysicalDevice and include the status field
   static const Set<String> physicalDeviceClasses = {
     'PhysicalDevice',
     'Server',
@@ -580,7 +581,7 @@ class ITopApiService {
     'PowerSource',
   };
 
-  /// Recupera tutti gli asset (FunctionalCI)
+  /// Retrieves all assets (FunctionalCI)
   Future<Map<String, dynamic>> getAssets({
     String? oqlFilter,
     String? className,
@@ -589,7 +590,7 @@ class ITopApiService {
     final cls = _validateClassName(className ?? 'FunctionalCI');
     String oql = oqlFilter ?? 'SELECT $cls';
 
-    // Usa i campi estesi solo per classi che li supportano
+    // Use extended fields only for classes that support them
     final fields = outputFields ??
         (physicalDeviceClasses.contains(cls)
             ? '$_baseCIFields$_physicalDeviceFields'
@@ -605,7 +606,7 @@ class ITopApiService {
     );
   }
 
-  /// Recupera un singolo asset con tutti i dettagli
+  /// Retrieves a single asset with full details
   Future<Map<String, dynamic>> getAssetDetail(
       String assetId, String className) async {
     return await _callApi(
@@ -618,7 +619,7 @@ class ITopApiService {
     );
   }
 
-  /// Cerca asset per testo
+  /// Searches assets by text
   Future<Map<String, dynamic>> searchAssets(String searchText) async {
     final escapedText = _escapeOqlString(searchText);
     return getAssets(
@@ -628,7 +629,7 @@ class ITopApiService {
     );
   }
 
-  /// Recupera asset per classe specifica (Server, PC, ecc.)
+  /// Retrieves assets by class (Server, PC, etc.)
   Future<Map<String, dynamic>> getAssetsByClass(String className) async {
     return getAssets(className: className);
   }

@@ -1,12 +1,12 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
-/// Widget che disegna il logo dell'app iTop Mobile in stile sci-fi.
+/// Widget that draws the iTop Mobile app logo in a sci-fi style.
 ///
-/// Utilizza [CustomPainter] per disegnare il logo in modo vettoriale,
-/// senza necessità di asset esterni o dipendenze aggiuntive.
+/// Uses [CustomPainter] to render the logo as a vector graphic,
+/// without external assets or extra dependencies.
 ///
-/// Design: esagono dark con circuiti neon, shield HUD e glow ciano.
+/// Design: dark hexagon with neon circuits, HUD shield, and cyan glow.
 class AppLogo extends StatelessWidget {
   final double size;
   final bool showText;
@@ -336,7 +336,7 @@ class _SciFiLogoPainter extends CustomPainter {
         ..maskFilter = MaskFilter.blur(BlurStyle.normal, s * 0.025),
     );
 
-    // Checkmark principale
+    // Main checkmark
     canvas.drawPath(
       checkPath,
       Paint()
@@ -347,7 +347,7 @@ class _SciFiLogoPainter extends CustomPainter {
         ..strokeJoin = StrokeJoin.round,
     );
 
-    // Highlight più chiaro al centro
+    // Brighter center highlight
     canvas.drawPath(
       checkPath,
       Paint()

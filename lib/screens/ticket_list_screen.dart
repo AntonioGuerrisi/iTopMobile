@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_strings.dart';
 import '../providers/ticket_provider.dart';
 import '../models/ticket.dart';
 import '../widgets/ticket_card.dart';
@@ -44,7 +45,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                 autofocus: true,
                 style: const TextStyle(color: Colors.white),
                 decoration: const InputDecoration(
-                  hintText: 'Cerca ticket...',
+                  hintText: AppStrings.searchTickets,
                   hintStyle: TextStyle(color: Colors.white70),
                   border: InputBorder.none,
                   filled: false,
@@ -53,7 +54,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                   context.read<TicketProvider>().searchTickets(value);
                 },
               )
-            : const Text('Ticket'),
+            : const Text(AppStrings.tickets),
         actions: [
           IconButton(
             icon: Icon(_isSearching ? Icons.close : Icons.search),
@@ -67,7 +68,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
               });
             },
           ),
-          // Filtro "I miei ticket"
+          // "My tickets" filter
           Consumer<TicketProvider>(
             builder: (context, provider, _) => IconButton(
               icon: Icon(
@@ -75,15 +76,15 @@ class _TicketListScreenState extends State<TicketListScreen> {
                 color: provider.myTicketsOnly ? Colors.amber : null,
               ),
               tooltip: provider.myTicketsOnly
-                  ? 'Mostra tutti i ticket'
-                  : 'Solo i miei ticket',
+                  ? AppStrings.showAllTickets
+                  : AppStrings.myTicketsOnly,
               onPressed: () => provider.toggleMyTickets(),
             ),
           ),
-          // Selettore periodo
+          // Period selector
           PopupMenuButton<TicketPeriod>(
             icon: const Icon(Icons.date_range),
-            tooltip: 'Periodo',
+            tooltip: AppStrings.period,
             onSelected: (period) {
               context.read<TicketProvider>().changePeriod(period);
             },
@@ -107,10 +108,10 @@ class _TicketListScreenState extends State<TicketListScreen> {
                   .toList();
             },
           ),
-          // Selettore ordinamento
+          // Sort selector
           PopupMenuButton<TicketSortOrder>(
             icon: const Icon(Icons.sort),
-            tooltip: 'Ordinamento',
+            tooltip: AppStrings.sort,
             onSelected: (order) {
               context.read<TicketProvider>().changeSortOrder(order);
             },
@@ -151,7 +152,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text('Caricamento ticket...'),
+                  Text(AppStrings.loadingTickets),
                 ],
               ),
             );
@@ -175,7 +176,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                     ElevatedButton.icon(
                       onPressed: () => provider.loadTickets(),
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Riprova'),
+                      label: const Text(AppStrings.retry),
                     ),
                   ],
                 ),
@@ -194,7 +195,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                 },
               ),
 
-              // Periodo attivo + filtro attivo + conteggio risultati
+              // Active period + active filter + result count
               Padding(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -219,7 +220,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: const Text(
-                          'I miei',
+                          AppStrings.myTickets,
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -230,7 +231,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                     ],
                     const SizedBox(width: 8),
                     Text(
-                      '· ${provider.tickets.length} ticket',
+                      '${provider.tickets.length}${AppStrings.ticketCountSuffix}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             color: Colors.grey[600],
                           ),
@@ -258,7 +259,7 @@ class _TicketListScreenState extends State<TicketListScreen> {
                                 size: 64, color: Colors.grey[400]),
                             const SizedBox(height: 16),
                             Text(
-                              'Nessun ticket trovato',
+                              AppStrings.noTicketsFound,
                               style: TextStyle(color: Colors.grey[600]),
                             ),
                           ],

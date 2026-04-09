@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_strings.dart';
 import '../models/ticket.dart';
 import '../providers/ticket_provider.dart';
 import '../theme/app_theme.dart';
 
-/// Schermata con le azioni disponibili per un ticket
+/// Screen showing available actions for a ticket
 class TicketActionsScreen extends StatelessWidget {
   final Ticket ticket;
 
@@ -14,7 +15,7 @@ class TicketActionsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Azioni - ${ticket.ref}'),
+        title: Text('${AppStrings.actions} - ${ticket.ref}'),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -28,7 +29,7 @@ class TicketActionsScreen extends StatelessWidget {
                   Icon(AppTheme.getStatusIcon(ticket.status),
                       color: AppTheme.getStatusColor(ticket.status)),
                   const SizedBox(width: 12),
-                  Text('Stato attuale: ',
+                  Text(AppStrings.currentStatus,
                       style: TextStyle(color: Colors.grey[600])),
                   Text(
                     ticket.status,
@@ -40,28 +41,28 @@ class TicketActionsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 16),
 
-          // --- Sezione Log ---
-          _buildSectionTitle(context, 'Aggiungi al Log'),
+          // --- Log section ---
+          _buildSectionTitle(context, AppStrings.addToLog),
           const SizedBox(height: 8),
           _ActionTile(
             icon: Icons.chat,
-            title: 'Log Pubblico',
-            subtitle: 'Visibile al richiedente',
+            title: AppStrings.publicLogTitle,
+            subtitle: AppStrings.visibleToRequester,
             color: Colors.blue,
             onTap: () => _showAddLogDialog(context, isPublic: true),
           ),
           _ActionTile(
             icon: Icons.lock,
-            title: 'Log Privato',
-            subtitle: 'Visibile solo al team interno',
+            title: AppStrings.privateLogTitle,
+            subtitle: AppStrings.visibleToInternalTeam,
             color: Colors.orange,
             onTap: () => _showAddLogDialog(context, isPublic: false),
           ),
 
           const SizedBox(height: 24),
 
-          // --- Sezione Stato ---
-          _buildSectionTitle(context, 'Cambia Stato'),
+          // --- Status section ---
+          _buildSectionTitle(context, AppStrings.changeStatus),
           const SizedBox(height: 8),
           ..._buildStatusActions(context),
         ],
@@ -79,7 +80,7 @@ class TicketActionsScreen extends StatelessWidget {
     );
   }
 
-  /// Costruisce le azioni di cambio stato in base allo stato attuale
+  /// Builds state change actions based on the current ticket status
   List<Widget> _buildStatusActions(BuildContext context) {
     final status = ticket.status.toLowerCase();
     final actions = <Widget>[];
@@ -89,15 +90,15 @@ class TicketActionsScreen extends StatelessWidget {
       case 'new':
         actions.add(_ActionTile(
           icon: Icons.assignment_ind,
-          title: 'Assegna',
-          subtitle: 'Transizione a "Assegnato"',
+          title: AppStrings.assign,
+          subtitle: '${AppStrings.assign} -> ${AppStrings.assignedStatus}',
           color: Colors.indigo,
           onTap: () => _showAssignDialog(context),
         ));
         actions.add(_ActionTile(
           icon: Icons.check_circle,
-          title: 'Risolvi',
-          subtitle: 'Risolvi direttamente il ticket',
+          title: AppStrings.resolve,
+          subtitle: 'Resolve the ticket directly',
           color: Colors.green,
           onTap: () => _showResolveDialog(context),
         ));
@@ -105,22 +106,22 @@ class TicketActionsScreen extends StatelessWidget {
       case 'assigned':
         actions.add(_ActionTile(
           icon: Icons.pause_circle,
-          title: 'Metti in Attesa',
-          subtitle: 'In attesa di informazioni',
+          title: AppStrings.pending,
+          subtitle: 'Waiting for more information',
           color: Colors.amber,
           onTap: () => _showPendingDialog(context),
         ));
         actions.add(_ActionTile(
           icon: Icons.check_circle,
-          title: 'Risolvi',
-          subtitle: 'Inserisci servizio e soluzione',
+          title: AppStrings.resolve,
+          subtitle: 'Select a service and resolution',
           color: Colors.green,
           onTap: () => _showResolveDialog(context),
         ));
         actions.add(_ActionTile(
           icon: Icons.redo,
-          title: 'Riassegna',
-          subtitle: 'Riassegna ad altro team/agente',
+          title: AppStrings.reassign,
+          subtitle: 'Reassign to another team or agent',
           color: Colors.purple,
           onTap: () => _showAssignDialog(context, stimulus: 'ev_reassign'),
         ));
@@ -128,8 +129,8 @@ class TicketActionsScreen extends StatelessWidget {
       case 'pending':
         actions.add(_ActionTile(
           icon: Icons.assignment_ind,
-          title: 'Assegna',
-          subtitle: 'Riprendi e assegna il ticket',
+          title: AppStrings.assign,
+          subtitle: 'Resume and assign the ticket',
           color: Colors.indigo,
           onTap: () => _showAssignDialog(context, stimulus: 'ev_assign'),
         ));
@@ -137,17 +138,18 @@ class TicketActionsScreen extends StatelessWidget {
       case 'resolved':
         actions.add(_ActionTile(
           icon: Icons.done_all,
-          title: 'Chiudi',
-          subtitle: 'Chiudi definitivamente il ticket',
+          title: AppStrings.close,
+          subtitle: 'Close the ticket permanently',
           color: Colors.teal,
-          onTap: () => _confirmStimulus(context, 'ev_close', 'Chiudi'),
+          onTap: () => _confirmStimulus(context, 'ev_close', AppStrings.close),
         ));
         actions.add(_ActionTile(
           icon: Icons.replay,
-          title: 'Riapri',
-          subtitle: 'Riporta il ticket ad assegnato',
+          title: AppStrings.reopen,
+          subtitle: 'Return the ticket to assigned',
           color: Colors.deepOrange,
-          onTap: () => _confirmStimulus(context, 'ev_reopen', 'Riapri'),
+          onTap: () =>
+              _confirmStimulus(context, 'ev_reopen', AppStrings.reopen),
         ));
         break;
       case 'closed':
@@ -161,7 +163,7 @@ class TicketActionsScreen extends StatelessWidget {
                   SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      'Il ticket è chiuso. Non sono disponibili ulteriori transizioni.',
+                      'The ticket is closed. No further transitions are available.',
                       style: TextStyle(color: Colors.grey),
                     ),
                   ),
@@ -174,8 +176,8 @@ class TicketActionsScreen extends StatelessWidget {
       default:
         actions.add(_ActionTile(
           icon: Icons.check_circle,
-          title: 'Risolvi',
-          subtitle: 'Inserisci la soluzione',
+          title: AppStrings.resolve,
+          subtitle: 'Enter the resolution',
           color: Colors.green,
           onTap: () => _showResolveDialog(context),
         ));
@@ -184,27 +186,27 @@ class TicketActionsScreen extends StatelessWidget {
     return actions;
   }
 
-  /// Dialog per aggiungere una entry al log
+  /// Dialog to add a log entry
   void _showAddLogDialog(BuildContext context, {required bool isPublic}) {
     final controller = TextEditingController();
-    final logType = isPublic ? 'pubblico' : 'privato';
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Log ${isPublic ? "Pubblico" : "Privato"}'),
+        title: Text(
+            isPublic ? AppStrings.publicLogTitle : AppStrings.privateLogTitle),
         content: TextField(
           controller: controller,
           maxLines: 5,
           decoration: InputDecoration(
-            hintText: 'Scrivi un messaggio nel log $logType...',
+            hintText: AppStrings.writeLogMessage,
             border: const OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annulla'),
+            child: const Text(AppStrings.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -213,7 +215,7 @@ class TicketActionsScreen extends StatelessWidget {
               Navigator.pop(ctx);
               await _sendLog(context, message, isPublic);
             },
-            child: const Text('Invia'),
+            child: const Text(AppStrings.addLog),
           ),
         ],
       ),
@@ -234,20 +236,20 @@ class TicketActionsScreen extends StatelessWidget {
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Log aggiunto con successo'),
+            content: Text('Log added successfully'),
             backgroundColor: Colors.green),
       );
-      Navigator.pop(context, true); // torna al detail con refresh
+      Navigator.pop(context, true); // return to detail with refresh
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(provider.errorMessage ?? 'Errore'),
+            content: Text(provider.errorMessage ?? AppStrings.error),
             backgroundColor: Colors.red),
       );
     }
   }
 
-  /// Dialog per assegnare il ticket a un team/agente
+  /// Dialog to assign the ticket to a team/agent
   void _showAssignDialog(BuildContext context,
       {String stimulus = 'ev_assign'}) {
     Navigator.push(
@@ -262,24 +264,24 @@ class TicketActionsScreen extends StatelessWidget {
     });
   }
 
-  /// Dialog per mettere il ticket in attesa (con motivo)
+  /// Dialog for setting the ticket to pending (with reason)
   void _showPendingDialog(BuildContext context) {
     final controller = TextEditingController();
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Metti in Attesa'),
+        title: const Text(AppStrings.pendingReasonTitle),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Indica il motivo dell\'attesa:'),
+            const Text(AppStrings.pendingReasonLabel),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
               maxLines: 3,
               decoration: const InputDecoration(
-                hintText: 'Motivo...',
+                hintText: AppStrings.pendingReasonHint,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -288,7 +290,7 @@ class TicketActionsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annulla'),
+            child: const Text(AppStrings.cancel),
           ),
           FilledButton(
             onPressed: () async {
@@ -306,14 +308,14 @@ class TicketActionsScreen extends StatelessWidget {
               }
               await _doStimulus(context, 'ev_pending', fields: fields);
             },
-            child: const Text('Conferma'),
+            child: const Text(AppStrings.confirm),
           ),
         ],
       ),
     );
   }
 
-  /// Dialog per risolvere il ticket
+  /// Dialog to resolve the ticket
   void _showResolveDialog(BuildContext context) {
     Navigator.push(
       context,
@@ -327,7 +329,7 @@ class TicketActionsScreen extends StatelessWidget {
     });
   }
 
-  /// Conferma un'azione di stimulus semplice (con commento obbligatorio)
+  /// Confirms a simple stimulus action (requires a comment)
   void _confirmStimulus(
       BuildContext context, String stimulus, String actionLabel) {
     final controller = TextEditingController();
@@ -335,18 +337,19 @@ class TicketActionsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Conferma: $actionLabel'),
+        title: Text('${AppStrings.confirmActionTitle} $actionLabel'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('Vuoi ${actionLabel.toLowerCase()} il ticket ${ticket.ref}?'),
+            Text(
+                'Do you want to ${actionLabel.toLowerCase()} ticket ${ticket.ref}?'),
             const SizedBox(height: 12),
             TextField(
               controller: controller,
               maxLines: 3,
               decoration: const InputDecoration(
-                labelText: 'Commento *',
-                hintText: 'Inserisci un commento...',
+                labelText: AppStrings.commentLabel,
+                hintText: AppStrings.commentHint,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -355,7 +358,7 @@ class TicketActionsScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Annulla'),
+            child: const Text(AppStrings.cancel),
           ),
           FilledButton(
             onPressed: () {
@@ -363,7 +366,7 @@ class TicketActionsScreen extends StatelessWidget {
               if (comment.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
-                    content: Text('Il commento è obbligatorio'),
+                    content: Text(AppStrings.mandatoryComment),
                     backgroundColor: Colors.orange,
                   ),
                 );
@@ -402,14 +405,14 @@ class TicketActionsScreen extends StatelessWidget {
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            content: Text('Stato aggiornato con successo'),
+            content: Text('Status updated successfully'),
             backgroundColor: Colors.green),
       );
-      Navigator.pop(context, true); // torna al detail con refresh
+      Navigator.pop(context, true); // return to detail with refresh
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-            content: Text(provider.errorMessage ?? 'Errore'),
+            content: Text(provider.errorMessage ?? AppStrings.error),
             backgroundColor: Colors.red),
       );
     }
@@ -425,7 +428,7 @@ class TicketActionsScreen extends StatelessWidget {
 }
 
 // ============================================================
-// Schermata Assegnazione Ticket
+// Ticket assignment screen
 // ============================================================
 
 class _AssignTicketScreen extends StatefulWidget {
@@ -454,9 +457,9 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
   @override
   void initState() {
     super.initState();
-    // Se il ticket ha già un team, pre-selezionalo
+    // If the ticket already has a team, pre-select it
     if (widget.ticket.teamName.isNotEmpty) {
-      // Il team ID non è disponibile direttamente, verrà selezionato manualmente
+      // The team ID is not directly available and will be selected manually
     }
     _loadTeams();
   }
@@ -509,8 +512,8 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
       appBar: AppBar(
         title: Text(
           widget.stimulus == 'ev_reassign'
-              ? 'Riassegna ${widget.ticket.ref}'
-              : 'Assegna ${widget.ticket.ref}',
+              ? '${AppStrings.reassign} ${widget.ticket.ref}'
+              : '${AppStrings.assign} ${widget.ticket.ref}',
         ),
       ),
       body: Form(
@@ -529,8 +532,7 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Seleziona il team e l\'agente a cui assegnare '
-                        'il ticket.',
+                        'Select the team and agent to assign the ticket.',
                       ),
                     ),
                   ],
@@ -540,7 +542,7 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
             const SizedBox(height: 20),
 
             // --- Team ---
-            Text('Team *',
+            Text('${AppStrings.team} *',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -553,7 +555,7 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText: 'Seleziona un team',
+                      hintText: AppStrings.selectTeam,
                     ),
                     items: _teams
                         .map((t) => DropdownMenuItem(
@@ -561,7 +563,7 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
                               child: Text(t['name'] as String),
                             ))
                         .toList(),
-                    validator: (v) => v == null ? 'Seleziona un team' : null,
+                    validator: (v) => v == null ? AppStrings.selectTeam : null,
                     onChanged: (value) {
                       setState(() {
                         _selectedTeamId = value;
@@ -573,8 +575,8 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
                   ),
             const SizedBox(height: 20),
 
-            // --- Agente ---
-            Text('Agente *',
+            // --- Agent ---
+            Text('${AppStrings.agent} *',
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -588,8 +590,8 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       hintText: _members.isEmpty
-                          ? 'Seleziona prima un team'
-                          : 'Seleziona un agente',
+                          ? AppStrings.selectTeamFirst
+                          : AppStrings.selectAgent,
                     ),
                     items: _members
                         .map((m) => DropdownMenuItem(
@@ -598,7 +600,7 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
                             ))
                         .toList(),
                     validator: (v) => _members.isNotEmpty && v == null
-                        ? 'Seleziona un agente'
+                        ? AppStrings.selectAgent
                         : null,
                     onChanged: (value) {
                       setState(() {
@@ -608,7 +610,7 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
                   ),
             const SizedBox(height: 32),
 
-            // --- Bottone ---
+            // --- Button ---
             SizedBox(
               height: 48,
               child: FilledButton.icon(
@@ -620,7 +622,9 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.assignment_ind),
-                label: Text(_isSaving ? 'Assegnazione...' : 'Assegna Ticket'),
+                label: Text(_isSaving
+                    ? AppStrings.assigningTicket
+                    : AppStrings.assignTicket),
               ),
             ),
           ],
@@ -654,8 +658,8 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(widget.stimulus == 'ev_reassign'
-              ? 'Ticket riassegnato con successo!'
-              : 'Ticket assegnato con successo!'),
+              ? AppStrings.ticketReassignedSuccessfully
+              : AppStrings.ticketAssignedSuccessfully),
           backgroundColor: Colors.green,
         ),
       );
@@ -663,7 +667,7 @@ class _AssignTicketScreenState extends State<_AssignTicketScreen> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(provider.errorMessage ?? 'Errore nell\'assegnazione'),
+          content: Text(provider.errorMessage ?? 'Assignment error'),
           backgroundColor: Colors.red,
         ),
       );
@@ -708,7 +712,7 @@ class _ActionTile extends StatelessWidget {
 }
 
 // ============================================================
-// Schermata Risoluzione Ticket
+// Ticket resolution screen
 // ============================================================
 
 class _ResolveTicketScreen extends StatefulWidget {
@@ -736,7 +740,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
   @override
   void initState() {
     super.initState();
-    // Se il ticket ha già un servizio valido, pre-selezionalo
+    // If the ticket already has a valid service, pre-select it
     final sid = widget.ticket.serviceId;
     if (sid.isNotEmpty && sid != '0') {
       _selectedServiceId = sid;
@@ -748,7 +752,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
     final provider = context.read<TicketProvider>();
     final services = await provider.getServices();
     if (mounted) {
-      // Verifica che il servizio pre-selezionato esista nella lista
+      // Verify that the pre-selected service exists in the list
       if (_selectedServiceId != null &&
           !services.any((s) => s['id'] == _selectedServiceId)) {
         _selectedServiceId = null;
@@ -757,7 +761,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
         _services = services;
         _isLoadingServices = false;
       });
-      // Se c'è un servizio pre-selezionato, carica le sottocategorie
+      // If there is a pre-selected service, load subcategories
       if (_selectedServiceId != null) {
         _loadSubcategories(_selectedServiceId!);
       }
@@ -791,7 +795,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Risolvi ${widget.ticket.ref}'),
+        title: Text('${AppStrings.resolve} ${widget.ticket.ref}'),
       ),
       body: Form(
         key: _formKey,
@@ -809,9 +813,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
                     SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        'Per risolvere il ticket è necessario indicare '
-                        'il servizio, la sottocategoria e la descrizione '
-                        'della soluzione.',
+                        'To resolve the ticket, you must select a service, a subcategory and describe the solution.',
                       ),
                     ),
                   ],
@@ -820,8 +822,8 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
             ),
             const SizedBox(height: 20),
 
-            // --- Servizio ---
-            Text('Servizio *',
+            // --- Service ---
+            Text(AppStrings.service,
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -834,7 +836,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
                     isExpanded: true,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      hintText: 'Seleziona un servizio',
+                      hintText: AppStrings.selectService,
                     ),
                     items: _services
                         .map((s) => DropdownMenuItem(
@@ -843,7 +845,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
                             ))
                         .toList(),
                     validator: (v) =>
-                        v == null ? 'Seleziona un servizio' : null,
+                        v == null ? AppStrings.selectService : null,
                     onChanged: (value) {
                       setState(() {
                         _selectedServiceId = value;
@@ -855,8 +857,8 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
                   ),
             const SizedBox(height: 20),
 
-            // --- Sottocategoria ---
-            Text('Sottocategoria Servizio *',
+            // --- Subcategory ---
+            Text(AppStrings.subcategory,
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -870,8 +872,8 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
                     decoration: InputDecoration(
                       border: const OutlineInputBorder(),
                       hintText: _subcategories.isEmpty
-                          ? 'Nessuna sottocategoria'
-                          : 'Seleziona sottocategoria',
+                          ? AppStrings.noSubcategories
+                          : AppStrings.selectSubcategory,
                     ),
                     items: _subcategories
                         .map((s) => DropdownMenuItem(
@@ -880,7 +882,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
                             ))
                         .toList(),
                     validator: (v) => _subcategories.isNotEmpty && v == null
-                        ? 'Seleziona una sottocategoria'
+                        ? AppStrings.selectSubcategory
                         : null,
                     onChanged: (value) {
                       setState(() {
@@ -890,8 +892,8 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
                   ),
             const SizedBox(height: 20),
 
-            // --- Soluzione ---
-            Text('Descrizione Soluzione *',
+            // --- Solution ---
+            Text(AppStrings.solutionDescription,
                 style: Theme.of(context)
                     .textTheme
                     .titleSmall
@@ -902,15 +904,15 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
               maxLines: 6,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
-                hintText: 'Descrivi la soluzione applicata...',
+                hintText: AppStrings.solutionHint,
               ),
               validator: (v) => (v == null || v.trim().isEmpty)
-                  ? 'Inserisci la descrizione della soluzione'
+                  ? AppStrings.enterSolutionDescription
                   : null,
             ),
             const SizedBox(height: 32),
 
-            // --- Bottone ---
+            // --- Button ---
             SizedBox(
               height: 48,
               child: FilledButton.icon(
@@ -922,7 +924,8 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
                         child: CircularProgressIndicator(
                             strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.check_circle),
-                label: Text(_isSaving ? 'Salvataggio...' : 'Risolvi Ticket'),
+                label: Text(
+                    _isSaving ? AppStrings.saving : AppStrings.resolveTicket),
               ),
             ),
           ],
@@ -938,7 +941,7 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
 
     final provider = context.read<TicketProvider>();
 
-    // Prepara i campi per la risoluzione
+    // Prepare fields for resolution
     final fields = <String, dynamic>{
       'solution': _solutionController.text.trim(),
       'service_id': _selectedServiceId,
@@ -959,15 +962,16 @@ class _ResolveTicketScreenState extends State<_ResolveTicketScreen> {
     if (success) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Ticket risolto con successo!'),
+          content: Text(AppStrings.ticketResolvedSuccessfully),
           backgroundColor: Colors.green,
         ),
       );
-      Navigator.pop(context, true); // torna ad actions, che tornerà al detail
+      Navigator.pop(
+          context, true); // returns to actions, which will return to detail
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(provider.errorMessage ?? 'Errore nella risoluzione'),
+          content: Text(provider.errorMessage ?? 'Resolution error'),
           backgroundColor: Colors.red,
         ),
       );

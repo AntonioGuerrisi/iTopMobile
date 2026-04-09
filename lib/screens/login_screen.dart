@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_strings.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_logo.dart';
@@ -42,7 +43,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(auth.errorMessage ?? 'Login fallito'),
+          content: Text(auth.errorMessage ?? AppStrings.loginFailed),
           backgroundColor: AppTheme.errorColor,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
@@ -72,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const AppLogo(size: 100),
                   const SizedBox(height: 8),
                   Text(
-                    'Gestione Ticket & Asset',
+                    AppStrings.ticketAssetManagement,
                     textAlign: TextAlign.center,
                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                           color: Colors.grey[600],
@@ -84,17 +85,17 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _serverUrlController,
                     decoration: const InputDecoration(
-                      labelText: 'URL Server iTop',
-                      hintText: 'https://itop.example.com',
+                      labelText: AppStrings.iTopServerUrl,
+                      hintText: AppStrings.serverUrlHint,
                       prefixIcon: Icon(Icons.dns),
                     ),
                     keyboardType: TextInputType.url,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Inserisci l\'URL del server';
+                        return AppStrings.enterServerUrl;
                       }
                       if (!value.startsWith('https://')) {
-                        return 'L\'URL deve iniziare con https:// (connessioni sicure)';
+                        return AppStrings.secureUrlRequirement;
                       }
                       return null;
                     },
@@ -105,13 +106,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _usernameController,
                     decoration: const InputDecoration(
-                      labelText: 'Nome utente',
+                      labelText: AppStrings.username,
                       prefixIcon: Icon(Icons.person),
                     ),
                     textInputAction: TextInputAction.next,
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
-                        return 'Inserisci il nome utente';
+                        return AppStrings.enterUsername;
                       }
                       return null;
                     },
@@ -122,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   TextFormField(
                     controller: _passwordController,
                     decoration: InputDecoration(
-                      labelText: 'Password',
+                      labelText: AppStrings.password,
                       prefixIcon: const Icon(Icons.lock),
                       suffixIcon: IconButton(
                         icon: Icon(
@@ -142,7 +143,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     onFieldSubmitted: (_) => _login(),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Inserisci la password';
+                        return AppStrings.enterPassword;
                       }
                       return null;
                     },
@@ -160,12 +161,12 @@ class _LoginScreenState extends State<LoginScreen> {
                           });
                         },
                       ),
-                      const Text('Ricordami'),
+                      const Text(AppStrings.rememberMe),
                     ],
                   ),
                   const SizedBox(height: 24),
 
-                  // Bottone login
+                  // Login button
                   SizedBox(
                     height: 50,
                     child: ElevatedButton(
@@ -180,11 +181,11 @@ class _LoginScreenState extends State<LoginScreen> {
                                     AlwaysStoppedAnimation<Color>(Colors.white),
                               ),
                             )
-                          : const Text('Accedi'),
+                          : const Text(AppStrings.login),
                     ),
                   ),
 
-                  // Pulsante reset pin certificato (visibile solo in caso di errore SSL)
+                  // Certificate pin reset button (shown only on SSL error)
                   if (auth.isCertificateError) ...[
                     const SizedBox(height: 16),
                     OutlinedButton.icon(
@@ -194,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: const Text(
-                                'Pin certificato resettato. Riprova il login.',
+                                AppStrings.certificatePinResetMessage,
                               ),
                               behavior: SnackBarBehavior.floating,
                               shape: RoundedRectangleBorder(
@@ -205,7 +206,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         }
                       },
                       icon: const Icon(Icons.refresh),
-                      label: const Text('Resetta pin certificato'),
+                      label: const Text(AppStrings.resetCertificatePin),
                     ),
                   ],
                 ],

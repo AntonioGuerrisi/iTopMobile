@@ -2,26 +2,26 @@ import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'storage_service.dart';
 
-/// Servizio per il certificate pinning con approccio TOFU (Trust On First Use).
+/// Service for certificate pinning using TOFU (Trust On First Use).
 ///
-/// Al primo collegamento verso un server, il fingerprint SHA-256 del certificato
-/// viene validato tramite le CA di sistema e poi memorizzato in modo sicuro.
-/// Alle connessioni successive, il fingerprint viene verificato contro il pin
-/// memorizzato, proteggendo da attacchi Man-in-the-Middle.
+/// On first connection, the server certificate SHA-256 fingerprint is validated
+/// by the system CA chain and saved securely. On subsequent connections, the
+/// current fingerprint is compared to the stored pin to protect against
+/// Man-in-the-Middle attacks.
 class CertificatePinningService {
   final StorageService _storageService;
 
   CertificatePinningService(this._storageService);
 
-  /// Recupera il fingerprint SHA-256 del certificato del server
-  /// tramite connessione validata dalle CA di sistema.
+  /// Retrieves the server certificate SHA-256 fingerprint
+  /// via a system-validated TLS connection.
   Future<String> _fetchServerFingerprint(String host) async {
     final socket = await SecureSocket.connect(host, 443);
     try {
       final cert = socket.peerCertificate;
       if (cert == null) {
         throw CertificatePinningException(
-          'Il server non ha fornito un certificato SSL.',
+          'The server did not provide an SSL certificate.',
         );
       }
       return sha256.convert(cert.der).toString();
@@ -30,12 +30,11 @@ class CertificatePinningService {
     }
   }
 
-  /// Verifica il certificato del server rispetto al pin memorizzato.
+  /// Verifies the server certificate against the stored pin.
   ///
-  /// - Prima connessione (TOFU): recupera il fingerprint tramite CA di sistema
-  ///   e lo salva nel secure storage.
-  /// - Connessioni successive: confronta il fingerprint attuale con il pin
-  ///   memorizzato. Se non corrispondono, lancia [CertificatePinningException].
+  /// - First connection (TOFU): fetches the fingerprint via system CA and saves it.
+  /// - Subsequent connections: compares the current fingerprint to the stored pin.
+  ///   If they differ, throws [CertificatePinningException].
   Future<void> verifyServerCertificate(String serverUrl) async {
     final uri = Uri.parse(serverUrl);
     final host = uri.host;
@@ -51,25 +50,25 @@ class CertificatePinningService {
 
     if (currentFingerprint != storedPin) {
       throw CertificatePinningException(
-        'Il certificato del server è cambiato rispetto al pin memorizzato. '
-        'Possibile attacco Man-in-the-Middle.',
+        'The server certificate has changed from the stored pin. '
+        'Possible Man-in-the-Middle attack.',
       );
     }
   }
 
-  /// Resetta il pin memorizzato per un host (es. dopo rinnovo certificato).
+  /// Resets the stored pin for a host (e.g. after certificate renewal).
   Future<void> resetPin(String host) async {
     await _storageService.deleteCertificatePin(host);
   }
 
-  /// Verifica se esiste un pin memorizzato per un host.
+  /// Checks whether a stored pin exists for a host.
   Future<bool> hasPin(String host) async {
     final pin = await _storageService.loadCertificatePin(host);
     return pin != null;
   }
 }
 
-/// Eccezione per errori di certificate pinning
+/// Exception for certificate pinning errors
 class CertificatePinningException implements Exception {
   final String message;
   CertificatePinningException(this.message);

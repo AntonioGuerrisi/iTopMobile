@@ -9,13 +9,13 @@ class AppTheme {
   static const Color warningColor = Color(0xFFFFA726);
   static const Color surfaceLight = Color(0xFFF5F5F5);
 
-  // Colori priorità ticket
+  // Ticket priority colors
   static const Color priorityCritical = Color(0xFFD32F2F);
   static const Color priorityHigh = Color(0xFFF57C00);
   static const Color priorityMedium = Color(0xFFFFC107);
   static const Color priorityLow = Color(0xFF4CAF50);
 
-  // Colori stato ticket
+  // Ticket status colors
   static const Color statusNew = Color(0xFF2196F3);
   static const Color statusAssigned = Color(0xFF9C27B0);
   static const Color statusPending = Color(0xFFFFA726);
@@ -137,7 +137,7 @@ class AppTheme {
     );
   }
 
-  /// Restituisce il colore in base alla priorità del ticket
+  /// Returns the color based on ticket priority
   static Color getPriorityColor(String? priority) {
     switch (priority?.toLowerCase()) {
       case 'critical':
@@ -157,7 +157,7 @@ class AppTheme {
     }
   }
 
-  /// Restituisce il colore in base allo stato del ticket
+  /// Returns the color based on ticket status
   static Color getStatusColor(String? status) {
     switch (status?.toLowerCase()) {
       case 'new':
@@ -180,7 +180,7 @@ class AppTheme {
     }
   }
 
-  /// Restituisce l'icona in base allo stato del ticket
+  /// Returns the icon based on ticket status
   static IconData getStatusIcon(String? status) {
     switch (status?.toLowerCase()) {
       case 'new':

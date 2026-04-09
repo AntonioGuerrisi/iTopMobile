@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_strings.dart';
 import '../models/asset.dart';
 import '../providers/asset_provider.dart';
 import '../theme/app_theme.dart';
@@ -101,45 +102,52 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
                   const SizedBox(height: 16),
 
                   // Informazioni generali
-                  _buildSection('Informazioni Generali', [
-                    _buildDetailRow(Icons.business, 'Organizzazione', asset.orgName),
-                    _buildDetailRow(Icons.category, 'Tipo', asset.friendlyClassName),
-                    _buildDetailRow(Icons.info_outline, 'Stato', asset.status),
-                    _buildDetailRow(Icons.priority_high, 'Criticità',
+                  _buildSection(AppStrings.generalInformation, [
+                    _buildDetailRow(
+                        Icons.business, AppStrings.organization, asset.orgName),
+                    _buildDetailRow(Icons.category, AppStrings.type,
+                        asset.friendlyClassName),
+                    _buildDetailRow(
+                        Icons.info_outline, AppStrings.status, asset.status),
+                    _buildDetailRow(Icons.priority_high, AppStrings.criticality,
                         asset.businessCriticity),
                   ]),
 
                   const SizedBox(height: 16),
 
                   // Informazioni hardware
-                  _buildSection('Hardware', [
-                    _buildDetailRow(Icons.branding_watermark, 'Marca', asset.brand),
-                    _buildDetailRow(Icons.devices, 'Modello', asset.model),
-                    _buildDetailRow(Icons.tag, 'Numero di serie', asset.serialNumber),
-                    _buildDetailRow(Icons.confirmation_number, 'Asset Number',
-                        asset.assetNumber),
+                  _buildSection(AppStrings.hardware, [
+                    _buildDetailRow(Icons.branding_watermark, AppStrings.brand,
+                        asset.brand),
+                    _buildDetailRow(
+                        Icons.devices, AppStrings.model, asset.model),
+                    _buildDetailRow(
+                        Icons.tag, AppStrings.serialNumber, asset.serialNumber),
+                    _buildDetailRow(Icons.confirmation_number,
+                        AppStrings.assetNumber, asset.assetNumber),
                   ]),
 
                   const SizedBox(height: 16),
 
                   // Posizione
-                  _buildSection('Posizione', [
-                    _buildDetailRow(Icons.location_on, 'Ubicazione', asset.locationName),
-                    _buildDetailRow(Icons.calendar_today, 'In produzione dal',
-                        asset.move2production),
+                  _buildSection(AppStrings.location, [
+                    _buildDetailRow(Icons.location_on, AppStrings.locationName,
+                        asset.locationName),
+                    _buildDetailRow(Icons.calendar_today,
+                        AppStrings.inProductionSince, asset.move2production),
                   ]),
 
-                  // Descrizione
+                  // Description
                   if (asset.description.isNotEmpty) ...[
                     const SizedBox(height: 16),
-                    _buildSection('Descrizione', []),
+                    _buildSection(AppStrings.description, []),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
                       child: Text(asset.description),
                     ),
                   ],
 
-                  // Campi raw aggiuntivi
+                  // Additional raw fields
                   if (asset.rawFields.isNotEmpty) ...[
                     const SizedBox(height: 16),
                     _buildRawFieldsSection(asset),
@@ -231,12 +239,20 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
   }
 
   Widget _buildRawFieldsSection(Asset asset) {
-    // Mostra solo i campi che non sono già visualizzati
+    // Show only fields that are not already displayed
     final excludeKeys = {
-      'name', 'status', 'org_id_friendlyname', 'description',
-      'business_criticity', 'serialnumber', 'asset_number',
-      'brand_id_friendlyname', 'model_id_friendlyname',
-      'location_id_friendlyname', 'move2production', 'finalclass',
+      'name',
+      'status',
+      'org_id_friendlyname',
+      'description',
+      'business_criticity',
+      'serialnumber',
+      'asset_number',
+      'brand_id_friendlyname',
+      'model_id_friendlyname',
+      'location_id_friendlyname',
+      'move2production',
+      'finalclass',
     };
 
     final extraFields = asset.rawFields.entries
@@ -255,7 +271,7 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Altri Dettagli',
+          AppStrings.additionalDetails,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: AppTheme.primaryColor,
@@ -278,7 +294,8 @@ class _AssetDetailScreenState extends State<AssetDetailScreen> {
         .replaceAll('_', ' ')
         .replaceAll('id friendlyname', '')
         .split(' ')
-        .map((w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
+        .map(
+            (w) => w.isNotEmpty ? '${w[0].toUpperCase()}${w.substring(1)}' : '')
         .join(' ')
         .trim();
   }

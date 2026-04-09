@@ -1,4 +1,4 @@
-/// Modello per un Asset (FunctionalCI) di iTop
+/// Model for an iTop Asset (FunctionalCI)
 class Asset {
   final String id;
   final String name;
@@ -59,26 +59,26 @@ class Asset {
     return value.toString();
   }
 
-  /// Icona appropriata in base al tipo di asset
+  /// Friendly label based on asset type
   String get friendlyClassName {
     switch (className) {
       case 'Server':
         return 'Server';
       case 'VirtualMachine':
-        return 'Macchina Virtuale';
+        return 'Virtual Machine';
       case 'PC':
         return 'PC';
       case 'Laptop':
         return 'Laptop';
       case 'Printer':
-        return 'Stampante';
+        return 'Printer';
       case 'Phone':
       case 'MobilePhone':
-        return 'Telefono';
+        return 'Phone';
       case 'Tablet':
         return 'Tablet';
       case 'NetworkDevice':
-        return 'Dispositivo di Rete';
+        return 'Network Device';
       case 'StorageSystem':
         return 'Storage';
       case 'SANSwitch':
@@ -88,7 +88,7 @@ class Asset {
       case 'NAS':
         return 'NAS';
       case 'PowerSource':
-        return 'Alimentazione';
+        return 'Power Source';
       case 'PDU':
         return 'PDU';
       case 'Rack':
@@ -100,7 +100,7 @@ class Asset {
     }
   }
 
-  /// Controlla se l'asset è in produzione
+  /// Checks if the asset is in production
   bool get isInProduction =>
       status.toLowerCase() == 'production' ||
       status.toLowerCase() == 'produzione';

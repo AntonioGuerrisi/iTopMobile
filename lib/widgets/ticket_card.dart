@@ -23,7 +23,7 @@ class TicketCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Riga superiore: ref + priorità
+              // Top row: ref + priority
               Row(
                 children: [
                   // Badge ref
@@ -44,7 +44,7 @@ class TicketCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  // Indicatore priorità
+                  // Priority indicator
                   Container(
                     width: 10,
                     height: 10,
@@ -100,7 +100,8 @@ class TicketCard extends StatelessWidget {
                         ticket.callerName.isNotEmpty)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8),
-                        child: Text('•', style: TextStyle(color: Colors.grey[400])),
+                        child: Text('•',
+                            style: TextStyle(color: Colors.grey[400])),
                       ),
                     if (ticket.callerName.isNotEmpty) ...[
                       Icon(Icons.person_outline,
@@ -153,7 +154,7 @@ class TicketCard extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
-                  // Agente assegnato
+                  // Assigned agent
                   if (ticket.agentName.isNotEmpty) ...[
                     Icon(Icons.support_agent,
                         size: 14, color: Colors.grey[500]),
@@ -167,7 +168,7 @@ class TicketCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 12),
                   ],
-                  // Data ultimo aggiornamento
+                  // Last update date
                   Icon(Icons.access_time, size: 14, color: Colors.grey[400]),
                   const SizedBox(width: 4),
                   Text(
@@ -194,11 +195,11 @@ class TicketCard extends StatelessWidget {
       final diff = now.difference(date);
 
       if (diff.inMinutes < 60) {
-        return '${diff.inMinutes}m fa';
+        return '${diff.inMinutes}m ago';
       } else if (diff.inHours < 24) {
-        return '${diff.inHours}h fa';
+        return '${diff.inHours}h ago';
       } else if (diff.inDays < 7) {
-        return '${diff.inDays}g fa';
+        return '${diff.inDays}d ago';
       } else {
         return '${date.day}/${date.month}/${date.year}';
       }

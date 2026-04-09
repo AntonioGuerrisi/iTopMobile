@@ -1,151 +1,161 @@
 # iTop Mobile
 
-App mobile Flutter per la gestione dei **ticket** e degli **asset** salvati in [iTop](https://www.combodo.com/itop).
+Flutter mobile app for managing **tickets** and **assets** stored in [iTop](https://www.combodo.com/itop) by Combodo.
 
-## Funzionalità
+## About me
+Hi, Antonio Guerrisi here and I’m the mind behind this project. I develop following the principles of Vibe Coding. For me, coding is as much about intuition and flow as it is about logic: it's about capturing an idea and turning it into reality while the energy is high.
 
-### Autenticazione
-- **Login** con le stesse credenziali di iTop (REST API v1.3)
-- **Salvataggio credenziali** sicuro con opzione "Ricordami" (flutter_secure_storage)
-- **Auto-login** al riavvio dell'app se le credenziali sono salvate
-- URL del server configurabile dalla schermata di login
+Beyond this repository, I’m a creator constantly exploring new digital frontiers. You can see more of my work and philosophy over [my site](https://antonio.guerrisi.net).
 
-### Ticket (UserRequest)
-- **Lista ticket** con filtro temporale (ultimi 3 mesi, 6 mesi, anno, tutti) per prestazioni ottimali su grandi volumi
-- **Filtri per stato**: Nuovo, Assegnato, In attesa, Risolto, Chiuso
-- **Filtro "I miei ticket"**: mostra solo i ticket assegnati all'utente loggato
-- **Ricerca** per titolo, riferimento o descrizione
-- **Dettaglio** completo con 3 tab: Dettagli, Descrizione, Log pubblici
-- **Gestione stato** del ticket con transizioni iTop:
-  - Nuovo → Assegna / Risolvi
-  - Assegnato → In Attesa / Risolvi / Riassegna
-  - In Attesa → Riassegna / Risolvi
-  - Risolto → Chiudi / Riapri
-- **Aggiunta log pubblici e privati**
-- **Risoluzione ticket** con selezione di servizio, sottocategoria servizio e descrizione della soluzione
-- **Pull-to-refresh** sulla lista
+If you find this project (or any of my work) interesting, please consider tapping the badge to <a href='https://ko-fi.com/J3J617WRZF' target='_blank'><img height='36' style='border:0px;height:24px;vertical-align:middle;' src='https://storage.ko-fi.com/cdn/kofi1.png?v=6' border='0' alt='Buy Me a Coffee at ko-fi.com' /></a>  
+It’s a great way to fuel my next coding session and keep the vibes alive!
 
-### Asset (FunctionalCI)
-- **Lista asset** con filtro per tipo (Server, VM, PC, Laptop, Stampante, ecc.)
-- **Ricerca** per nome o descrizione
-- **Dettaglio** completo con sezioni: Generale, Hardware, Posizione
-- Gestione corretta dei campi specifici per classe (status solo per PhysicalDevice e sottoclassi)
+## Feedback and ideas
+I built this because I needed it (or just thought it would be cool), but it’s a living thing. If you stumble upon a bug, have an idea that would make this 10x better, or just want to suggest a new feature, don’t be a stranger; open an Issue! I’m all ears (and usually looking for an excuse to open up the editor again).
 
-### Altro
-- **Tema chiaro/scuro** automatico basato sulle impostazioni di sistema
-- **Schermata impostazioni** con info utente e logout
-- **3 tab di navigazione**: Ticket, Asset, Impostazioni
+## Features
 
-## Architettura
+### Authentication
+- **Login** with the same iTop credentials (REST API v1.3)
+- **Secure credential storage** with "Remember me" support (`flutter_secure_storage`)
+- **Auto-login** when the app restarts if credentials are saved
 
-Il progetto utilizza il pattern **Provider** per la gestione dello stato.
+### Tickets (UserRequest)
+- **Ticket list** with time filters (last 3 months, 6 months, year, all) for better performance on large volumes
+- **Status filters**: New, Assigned, Pending, Resolved, Closed
+- **My tickets filter**: show only tickets assigned to the authenticated user
+- **Search** by title, reference, or description
+- **Full ticket detail** with three tabs: Details, Description, Logs
+- **Ticket state management** with iTop transitions:
+  - New → Assign / Resolve
+  - Assigned → Pending / Resolve / Reassign
+  - Pending → Reassign / Resolve
+  - Resolved → Close / Reopen
+- **Add public and private logs**
+- **Resolve tickets** with service, subcategory, and resolution description
+- **Pull-to-refresh** support in lists
+
+### Assets (FunctionalCI)
+- **Asset list** with type filtering (Server, VM, PC, Laptop, Printer, etc.)
+- **Search** by name or description
+- **Detailed asset screen** with sections: General, Hardware, Location
+- Correct handling of class-specific fields
+
+### Other
+- **Light/dark theme** based on system settings
+- **Settings screen** with user info and logout
+- **3 bottom navigation tabs**: Tickets, Assets, Settings
+
+## Architecture
+
+The project uses the **Provider** pattern for state management.
 
 ```
 lib/
-├── main.dart                          # Entry point con MultiProvider
+├── main.dart                          # Entry point with MultiProvider
 ├── theme/
-│   └── app_theme.dart                 # Tema, colori priorità/stato, icone
+│   └── app_theme.dart                 # Theme, priority/status colors, icons
 ├── models/
-│   ├── ticket.dart                    # Modello Ticket (UserRequest)
-│   ├── ticket_log.dart                # Modello Log entry (caselog)
-│   └── asset.dart                     # Modello Asset (FunctionalCI)
+│   ├── ticket.dart                    # Ticket model (UserRequest)
+│   ├── ticket_log.dart                # Ticket log model (caselog)
+│   └── asset.dart                     # Asset model (FunctionalCI)
 ├── services/
-│   ├── itop_api_service.dart          # Client REST API iTop
-│   └── storage_service.dart           # Gestione credenziali sicure
+│   ├── itop_api_service.dart          # iTop REST API client
+│   └── storage_service.dart           # Secure credential storage
 ├── providers/
-│   ├── auth_provider.dart             # Stato autenticazione + auto-login
-│   ├── ticket_provider.dart           # Stato ticket + filtri + azioni
-│   └── asset_provider.dart            # Stato asset + filtri
+│   ├── auth_provider.dart             # Authentication state + auto-login
+│   ├── ticket_provider.dart           # Ticket state, filters, actions
+│   └── asset_provider.dart            # Asset state and filters
 ├── screens/
-│   ├── login_screen.dart              # Schermata di login
-│   ├── home_screen.dart               # Shell con bottom navigation
-│   ├── ticket_list_screen.dart        # Lista ticket con filtri
-│   ├── ticket_detail_screen.dart      # Dettaglio ticket (3 tab)
-│   ├── ticket_actions_screen.dart     # Azioni ticket (log, stato, risolvi)
-│   ├── asset_list_screen.dart         # Lista asset con filtri
-│   ├── asset_detail_screen.dart       # Dettaglio asset
-│   └── settings_screen.dart           # Impostazioni e logout
+│   ├── login_screen.dart              # Login screen
+│   ├── home_screen.dart               # Shell with bottom navigation
+│   ├── ticket_list_screen.dart        # Ticket list with filters
+│   ├── ticket_detail_screen.dart      # Ticket detail (3 tabs)
+│   ├── ticket_actions_screen.dart     # Ticket actions (log, status, resolve)
+│   ├── asset_list_screen.dart         # Asset list with filters
+│   ├── asset_detail_screen.dart       # Asset detail
+│   └── settings_screen.dart           # Settings and logout
 └── widgets/
-    ├── ticket_card.dart               # Card ticket
-    ├── asset_card.dart                # Card asset
-    └── status_filter_chips.dart       # Filtri stato orizzontali
+    ├── ticket_card.dart               # Ticket card
+    ├── asset_card.dart                # Asset card
+    └── status_filter_chips.dart       # Status filter chips
 ```
 
-## Configurazione
+## Configuration
 
-L'app è preconfigurata per connettersi a `https://example.domain.tld`.
-L'URL del server può essere modificato dalla schermata di login.
+The app is preconfigured to connect to `https://example.domain.tld`.
+The server URL can be changed from the login screen.
 
-### API iTop utilizzata
+### iTop API used
 
-L'app utilizza l'endpoint REST di iTop:
+The app uses the iTop REST endpoint:
 ```
 POST {server}/webservices/rest.php?version=1.3
 ```
 
-Operazioni utilizzate:
-- `core/get` — Recupera oggetti (ticket, asset, utenti, servizi, sottocategorie)
-- `core/update` — Aggiorna oggetti (aggiunta log pubblici/privati)
-- `core/apply_stimulus` — Applica transizioni di stato ai ticket
+Operations used:
+- `core/get` — Retrieves objects (tickets, assets, users, services, subcategories)
+- `core/update` — Updates objects (adds public/private logs)
+- `core/apply_stimulus` — Applies ticket state transitions
 
-## Prerequisiti
+## Prerequisites
 
 - [Flutter SDK](https://flutter.dev/docs/get-started/install) >= 3.5.0
-- Android Studio / Xcode per emulatori
-- Un'istanza iTop con REST API abilitate
+- Android Studio / Xcode for emulators
+- An iTop instance with REST API enabled
 
-## Installazione e avvio
+## Installation and run
 
 ```bash
-# Clona il repository
-git clone <url-del-repo>
+# Clone the repository
+git clone <repository-url>
 cd iTopMobile
 
-# Installa le dipendenze
+# Install dependencies
 flutter pub get
 
-# Avvia su emulatore/dispositivo
+# Run on an emulator/device
 flutter run
 
-# Build APK debug
+# Build debug APK
 flutter build apk --debug
 
-# Build APK release
+# Build release APK
 flutter build apk --release
 
-# Build iOS debug (solo macOS con Xcode)
+# Build iOS debug (macOS + Xcode only)
 flutter build ios --debug --no-codesign
 
-# Build iOS release (solo macOS con Xcode)
+# Build iOS release (macOS + Xcode only)
 flutter build ios --release
 
-# Build IPA per distribuzione (solo macOS con Xcode)
+# Build IPA for distribution (macOS + Xcode only)
 flutter build ipa --release
 ```
 
-> **Nota:** I build iOS (`flutter build ios` e `flutter build ipa`) richiedono **macOS** con **Xcode** installato. Non è possibile compilare per iOS da Windows o Linux.
+> **Note:** iOS builds (`flutter build ios` and `flutter build ipa`) require **macOS** with **Xcode** installed. You cannot build iOS from Windows or Linux.
 
-## Dipendenze principali
+## Main dependencies
 
-| Pacchetto | Utilizzo |
-|-----------|----------|
+| Package | Usage |
+|---------|-------|
 | `provider` | State management |
-| `http` | Chiamate REST API |
-| `flutter_secure_storage` | Salvataggio sicuro credenziali |
-| `shared_preferences` | Preferenze utente |
-| `intl` | Formattazione date e filtro temporale |
-| `cached_network_image` | Cache immagini |
-| `shimmer` | Loading skeleton |
-| `pull_to_refresh_flutter3` | Pull-to-refresh liste |
-| `flutter_slidable` | Azioni slide su card |
+| `http` | REST API calls |
+| `flutter_secure_storage` | Secure credential storage |
+| `shared_preferences` | User preferences |
+| `intl` | Date formatting and filters |
+| `cached_network_image` | Image caching |
+| `shimmer` | Loading skeletons |
+| `pull_to_refresh_flutter3` | Pull-to-refresh lists |
+| `flutter_slidable` | Slide actions on cards |
 
-## Configurazione iTop
+## iTop configuration
 
-Assicurati che nel tuo iTop siano abilitate le REST API:
-1. Vai su **Amministrazione** > **Configurazione**
-2. Verifica che `itop-rest-service` sia abilitato
-3. L'utente utilizzato deve avere i permessi di accesso via API
+Make sure the iTop REST API is enabled:
+1. Go to **Administration** > **Configuration**
+2. Verify that `itop-rest-service` is enabled
+3. Ensure the API user has the required permissions
 
-## Licenza
+## License
 
-Vedi il file [LICENSE](LICENSE).
+See the [LICENSE](LICENSE) file.

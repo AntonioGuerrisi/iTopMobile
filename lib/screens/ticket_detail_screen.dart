@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:intl/intl.dart';
+import '../l10n/app_strings.dart';
 import '../models/ticket.dart';
 import '../models/ticket_log.dart';
 import '../providers/ticket_provider.dart';
@@ -70,9 +71,9 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           labelColor: Colors.white,
           unselectedLabelColor: Colors.white70,
           tabs: const [
-            Tab(text: 'Dettagli'),
-            Tab(text: 'Descrizione'),
-            Tab(text: 'Log'),
+            Tab(text: AppStrings.details),
+            Tab(text: AppStrings.description),
+            Tab(text: AppStrings.showLogs),
           ],
         ),
       ),
@@ -90,7 +91,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           ? FloatingActionButton.extended(
               onPressed: () => _openActions(ticket),
               icon: const Icon(Icons.edit),
-              label: const Text('Azioni'),
+              label: const Text(AppStrings.actions),
             )
           : null,
     );
@@ -106,7 +107,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
     if (result == true && mounted) {
       setState(() => _isLoading = true);
       await _loadDetails();
-      // Ricarica anche la lista ticker in background
+      // Also refresh the ticket list in the background
       if (mounted) {
         context.read<TicketProvider>().loadTickets();
       }
@@ -119,7 +120,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Titolo
+          // Title
           Text(
             ticket.title,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -128,7 +129,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           ),
           const SizedBox(height: 16),
 
-          // Stato e priorità
+          // Status and priority
           Row(
             children: [
               _buildStatusChip(ticket.status),
@@ -139,45 +140,47 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           const SizedBox(height: 24),
 
           // Informazioni principali
-          _buildInfoSection('Informazioni Generali', [
-            _buildInfoRow(Icons.business, 'Organizzazione', ticket.orgName),
+          _buildInfoSection(AppStrings.generalInformation, [
             _buildInfoRow(
-                Icons.person_outline, 'Richiedente', ticket.callerName),
-            _buildInfoRow(Icons.group, 'Team', ticket.teamName),
-            _buildInfoRow(Icons.person, 'Agente', ticket.agentName),
+                Icons.business, AppStrings.organization, ticket.orgName),
             _buildInfoRow(
-                Icons.miscellaneous_services, 'Servizio', ticket.serviceName),
-            _buildInfoRow(Icons.category, 'Sottocategoria',
+                Icons.person_outline, AppStrings.requester, ticket.callerName),
+            _buildInfoRow(Icons.group, AppStrings.team, ticket.teamName),
+            _buildInfoRow(Icons.person, AppStrings.agent, ticket.agentName),
+            _buildInfoRow(Icons.miscellaneous_services, AppStrings.service,
+                ticket.serviceName),
+            _buildInfoRow(Icons.category, AppStrings.subcategory,
                 ticket.serviceSubcategoryName),
-            _buildInfoRow(Icons.source, 'Origine', ticket.origin),
+            _buildInfoRow(Icons.source, AppStrings.origin, ticket.origin),
           ]),
 
           const SizedBox(height: 16),
 
           // Impatto e urgenza
-          _buildInfoSection('Classificazione', [
-            _buildInfoRow(Icons.priority_high, 'Priorità', ticket.priority),
-            _buildInfoRow(Icons.speed, 'Urgenza', ticket.urgency),
-            _buildInfoRow(Icons.flash_on, 'Impatto', ticket.impact),
+          _buildInfoSection(AppStrings.classification, [
+            _buildInfoRow(
+                Icons.priority_high, AppStrings.priority, ticket.priority),
+            _buildInfoRow(Icons.speed, AppStrings.urgency, ticket.urgency),
+            _buildInfoRow(Icons.flash_on, AppStrings.impact, ticket.impact),
           ]),
 
           const SizedBox(height: 16),
 
           // Date
-          _buildInfoSection('Date', [
-            _buildInfoRow(
-                Icons.play_arrow, 'Apertura', _formatDate(ticket.startDate)),
-            _buildInfoRow(Icons.update, 'Ultimo aggiornamento',
+          _buildInfoSection(AppStrings.dates, [
+            _buildInfoRow(Icons.play_arrow, AppStrings.opening,
+                _formatDate(ticket.startDate)),
+            _buildInfoRow(Icons.update, AppStrings.lastUpdate,
                 _formatDate(ticket.lastUpdate)),
             if (ticket.closeDate.isNotEmpty)
-              _buildInfoRow(Icons.check_circle, 'Chiusura',
+              _buildInfoRow(Icons.check_circle, AppStrings.closure,
                   _formatDate(ticket.closeDate)),
           ]),
 
           // Risoluzione
           if (ticket.resolution.isNotEmpty) ...[
             const SizedBox(height: 16),
-            _buildInfoSection('Risoluzione', []),
+            _buildInfoSection(AppStrings.resolution, []),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16),
               child: Text(ticket.resolution),
@@ -197,7 +200,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
             Icon(Icons.description, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Nessuna descrizione disponibile',
+              AppStrings.noDescriptionAvailable,
               style: TextStyle(color: Colors.grey[600]),
             ),
           ],
@@ -223,7 +226,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
             Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey[400]),
             const SizedBox(height: 16),
             Text(
-              'Nessun log disponibile',
+              AppStrings.noLogsAvailable,
               style: TextStyle(color: Colors.grey[600]),
             ),
           ],
@@ -247,19 +250,19 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
                   runSpacing: 4,
                   children: [
                     _buildLogFilterChip(
-                      label: 'Pubblico',
+                      label: AppStrings.publicLabel,
                       icon: Icons.public,
                       type: LogType.public,
                       color: Colors.blue,
                     ),
                     _buildLogFilterChip(
-                      label: 'Privato',
+                      label: AppStrings.privateLabel,
                       icon: Icons.lock,
                       type: LogType.private_,
                       color: Colors.orange,
                     ),
                     _buildLogFilterChip(
-                      label: 'Attività',
+                      label: AppStrings.activityLabel,
                       icon: Icons.history,
                       type: LogType.activity,
                       color: Colors.green,
@@ -269,7 +272,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
               ),
               const SizedBox(width: 8),
               Text(
-                '${filteredLogs.length} di ${_logs.length}',
+                '${filteredLogs.length} of ${_logs.length}',
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Colors.grey[500],
                     ),
@@ -278,12 +281,12 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           ),
         ),
         const Divider(height: 1),
-        // Lista log filtrati
+        // Filtered log list
         Expanded(
           child: filteredLogs.isEmpty
               ? Center(
                   child: Text(
-                    'Nessun log con i filtri selezionati',
+                    AppStrings.noLogsWithFilters,
                     style: TextStyle(color: Colors.grey[500]),
                   ),
                 )
@@ -323,7 +326,7 @@ class _TicketDetailScreenState extends State<TicketDetailScreen>
           if (selected) {
             _activeLogFilters.add(type);
           } else {
-            // Non permettere di deselezionare tutto
+            // Do not allow deselecting all filters
             if (_activeLogFilters.length > 1) {
               _activeLogFilters.remove(type);
             }

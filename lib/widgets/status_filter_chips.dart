@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_strings.dart';
 import '../theme/app_theme.dart';
 
 class StatusFilterChips extends StatelessWidget {
@@ -26,42 +27,42 @@ class StatusFilterChips extends StatelessWidget {
         children: [
           _buildChip(
             context,
-            label: 'Tutti',
+            label: AppStrings.allStatuses,
             count: totalCount,
             status: 'all',
             color: AppTheme.primaryColor,
           ),
           _buildChip(
             context,
-            label: 'Nuovi',
+            label: AppStrings.newStatus,
             count: statusCounts['new'] ?? 0,
             status: 'new',
             color: AppTheme.statusNew,
           ),
           _buildChip(
             context,
-            label: 'Assegnati',
+            label: AppStrings.assignedStatus,
             count: statusCounts['assigned'] ?? 0,
             status: 'assigned',
             color: AppTheme.statusAssigned,
           ),
           _buildChip(
             context,
-            label: 'In attesa',
+            label: AppStrings.pendingStatus,
             count: statusCounts['pending'] ?? 0,
             status: 'pending',
             color: AppTheme.statusPending,
           ),
           _buildChip(
             context,
-            label: 'Risolti',
+            label: AppStrings.resolvedStatus,
             count: statusCounts['resolved'] ?? 0,
             status: 'resolved',
             color: AppTheme.statusResolved,
           ),
           _buildChip(
             context,
-            label: 'Chiusi',
+            label: AppStrings.closedStatus,
             count: statusCounts['closed'] ?? 0,
             status: 'closed',
             color: AppTheme.statusClosed,

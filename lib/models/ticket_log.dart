@@ -1,14 +1,14 @@
-/// Tipo di log entry
+/// Type of log entry
 enum LogType {
-  public('Pubblico'),
-  private_('Privato'),
-  activity('Attività');
+  public('Public'),
+  private_('Private'),
+  activity('Activity');
 
   final String label;
   const LogType(this.label);
 }
 
-/// Log entry per il ticket (caselog)
+/// Ticket log entry (caselog)
 class TicketLog {
   final String date;
   final String userLogin;
@@ -35,7 +35,7 @@ class TicketLog {
     );
   }
 
-  /// Attcode che sono chiavi esterne (ID da risolvere in nomi)
+  /// Attcodes that are foreign keys (IDs resolved to names)
   static const _fkAttcodes = {
     'agent_id',
     'caller_id',
@@ -45,7 +45,7 @@ class TicketLog {
     'servicesubcategory_id',
   };
 
-  /// Crea un log entry da un record CMDBChangeOp (attività / storia)
+  /// Creates a log entry from a CMDBChangeOp record (activity/history)
   factory TicketLog.fromChangeOp(
     String changeClass,
     Map<String, dynamic> fields,
@@ -57,14 +57,14 @@ class TicketLog {
     String message;
 
     if (changeClass == 'CMDBChangeOpCreate') {
-      message = 'Ticket creato';
+      message = 'Ticket created';
     } else if (changeClass == 'CMDBChangeOpSetAttributeScalar') {
       final attcode = fields['attcode']?.toString() ?? '';
       final oldValue = fields['oldvalue']?.toString() ?? '';
       final newValue = fields['newvalue']?.toString() ?? '';
       final attLabel = _attcodeLabels[attcode] ?? attcode;
 
-      // Risolve gli ID in nomi leggibili per le chiavi esterne
+      // Resolve IDs to readable names for foreign keys
       final displayOld = _fkAttcodes.contains(attcode)
           ? _resolveValue(oldValue, resolvedNames)
           : oldValue;
@@ -73,7 +73,7 @@ class TicketLog {
           : newValue;
 
       if (displayOld.isEmpty || oldValue == '0') {
-        message = '$attLabel impostato a "$displayNew"';
+        message = '$attLabel set to "$displayNew"';
       } else {
         message = '$attLabel: "$displayOld" → "$displayNew"';
       }
@@ -82,22 +82,22 @@ class TicketLog {
         changeClass == 'CMDBChangeOpSetAttributeLongText') {
       final attcode = fields['attcode']?.toString() ?? '';
       final attLabel = _attcodeLabels[attcode] ?? attcode;
-      message = '$attLabel modificato/a';
+      message = '$attLabel updated';
     } else if (changeClass == 'CMDBChangeOpSetAttributeBlob') {
       final filename = fields['filename']?.toString() ?? '';
       final attcode = fields['attcode']?.toString() ?? '';
       if (filename.isNotEmpty) {
-        message = 'Allegato aggiunto: "$filename"';
+        message = 'Attachment added: "$filename"';
       } else {
         final attLabel = _attcodeLabels[attcode] ?? attcode;
-        message = '$attLabel modificato';
+        message = '$attLabel updated';
       }
     } else if (changeClass == 'CMDBChangeOpPlugin') {
       final desc = fields['description']?.toString() ?? '';
       if (desc.isNotEmpty) {
         message = _stripHtml(desc);
       } else {
-        message = 'Azione plugin eseguita';
+        message = 'Plugin action executed';
       }
     } else {
       message = changeClass.replaceAll('CMDBChangeOp', '');
@@ -111,42 +111,42 @@ class TicketLog {
     );
   }
 
-  /// Risolve un valore ID in nome leggibile, se disponibile
+  /// Resolves an ID value to a readable name, if available
   static String _resolveValue(String value, Map<String, String> resolvedNames) {
     if (value.isEmpty || value == '0') return '';
     return resolvedNames[value] ?? value;
   }
 
-  /// Mappa attcode iTop → etichette leggibili
+  /// Maps iTop attcodes to readable labels
   static const _attcodeLabels = <String, String>{
-    'status': 'Stato',
-    'agent_id': 'Agente',
+    'status': 'Status',
+    'agent_id': 'Agent',
     'team_id': 'Team',
-    'priority': 'Priorità',
-    'urgency': 'Urgenza',
-    'impact': 'Impatto',
-    'caller_id': 'Richiedente',
-    'org_id': 'Organizzazione',
-    'service_id': 'Servizio',
-    'servicesubcategory_id': 'Sottocategoria',
-    'title': 'Titolo',
-    'assignment_date': 'Data assegnazione',
-    'resolution_date': 'Data risoluzione',
-    'close_date': 'Data chiusura',
-    'start_date': 'Data apertura',
-    'last_update': 'Ultimo aggiornamento',
-    'tto_escalation_deadline': 'Scadenza TTO',
-    'ttr_escalation_deadline': 'Scadenza TTR',
-    'origin': 'Origine',
-    'description': 'Descrizione',
-    'solution': 'Soluzione',
-    'user_satisfaction': 'Soddisfazione utente',
-    'parent_request_id': 'Richiesta padre',
-    'parent_incident_id': 'Incidente padre',
-    'resolution_code': 'Codice risoluzione',
+    'priority': 'Priority',
+    'urgency': 'Urgency',
+    'impact': 'Impact',
+    'caller_id': 'Requester',
+    'org_id': 'Organization',
+    'service_id': 'Service',
+    'servicesubcategory_id': 'Subcategory',
+    'title': 'Title',
+    'assignment_date': 'Assignment date',
+    'resolution_date': 'Resolution date',
+    'close_date': 'Closure date',
+    'start_date': 'Opening date',
+    'last_update': 'Last update',
+    'tto_escalation_deadline': 'TTO deadline',
+    'ttr_escalation_deadline': 'TTR deadline',
+    'origin': 'Origin',
+    'description': 'Description',
+    'solution': 'Solution',
+    'user_satisfaction': 'User satisfaction',
+    'parent_request_id': 'Parent request',
+    'parent_incident_id': 'Parent incident',
+    'resolution_code': 'Resolution code',
   };
 
-  /// Rimuove i tag HTML dal messaggio
+  /// Removes HTML tags from the message
   static String _stripHtml(String html) {
     return html
         .replaceAll(RegExp(r'<br\s*/?>'), '\n')

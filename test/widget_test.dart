@@ -6,8 +6,8 @@ void main() {
     await tester.pumpWidget(const ITopMobileApp());
     await tester.pumpAndSettle();
 
-    // Verifica che la schermata di login sia visibile
+    // Verify that the login screen is visible
     expect(find.text('iTop Mobile'), findsOneWidget);
-    expect(find.text('Accedi'), findsOneWidget);
+    expect(find.text('Login'), findsOneWidget);
   });
 }

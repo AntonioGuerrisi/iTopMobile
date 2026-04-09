@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../l10n/app_strings.dart';
 import 'ticket_list_screen.dart';
 import 'asset_list_screen.dart';
 import 'settings_screen.dart';
@@ -47,7 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(
             icon: Icon(Icons.settings),
             activeIcon: Icon(Icons.settings_rounded),
-            label: 'Impostazioni',
+            label: AppStrings.settings,
           ),
         ],
       ),

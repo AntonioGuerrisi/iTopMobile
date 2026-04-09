@@ -5,27 +5,27 @@ import '../models/ticket_log.dart';
 import '../providers/auth_provider.dart';
 import '../services/itop_api_service.dart';
 
-/// Periodi di caricamento disponibili
+/// Available ticket load periods
 enum TicketPeriod {
-  last3Months('Ultimi 3 mesi', 90),
-  last6Months('Ultimi 6 mesi', 180),
-  lastYear('Ultimo anno', 365),
-  all('Tutti', 0);
+  last3Months('Last 3 months', 90),
+  last6Months('Last 6 months', 180),
+  lastYear('Last year', 365),
+  all('All', 0);
 
   final String label;
   final int days;
   const TicketPeriod(this.label, this.days);
 }
 
-/// Opzioni di ordinamento dei ticket
+/// Ticket sort order options
 enum TicketSortOrder {
-  openDateDesc('Data apertura ↓', 'start_date', false),
-  openDateAsc('Data apertura ↑', 'start_date', true),
-  lastUpdateDesc('Ultima modifica ↓', 'last_update', false),
-  lastUpdateAsc('Ultima modifica ↑', 'last_update', true),
-  priorityDesc('Priorità ↓', 'priority', false),
-  refDesc('Riferimento ↓', 'ref', false),
-  refAsc('Riferimento ↑', 'ref', true);
+  openDateDesc('Open date ↓', 'start_date', false),
+  openDateAsc('Open date ↑', 'start_date', true),
+  lastUpdateDesc('Last update ↓', 'last_update', false),
+  lastUpdateAsc('Last update ↑', 'last_update', true),
+  priorityDesc('Priority ↓', 'priority', false),
+  refDesc('Reference ↓', 'ref', false),
+  refAsc('Reference ↑', 'ref', true);
 
   final String label;
   final String field;
@@ -33,7 +33,7 @@ enum TicketSortOrder {
   const TicketSortOrder(this.label, this.field, this.ascending);
 }
 
-/// Provider per la gestione dei ticket
+/// Provider for ticket management
 class TicketProvider with ChangeNotifier {
   ITopApiService? _apiService;
 
@@ -65,7 +65,7 @@ class TicketProvider with ChangeNotifier {
   bool get myTicketsOnly => _myTicketsOnly;
   int get totalTickets => _tickets.length;
 
-  /// Aggiorna il riferimento all'autenticazione
+  /// Updates the authentication reference
   void updateAuth(AuthProvider auth) {
     _apiService = auth.apiService;
     if (auth.isAuthenticated && auth.currentUser != null) {
@@ -81,7 +81,7 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Carica i ticket da iTop in base al periodo selezionato
+  /// Loads tickets from iTop based on the selected period
   Future<void> loadTickets({TicketPeriod? period}) async {
     if (_apiService == null) return;
 
@@ -115,27 +115,27 @@ class TicketProvider with ChangeNotifier {
     } on ITopApiException catch (e) {
       _errorMessage = e.message;
     } catch (e) {
-      _errorMessage = 'Errore nel caricamento dei ticket: $e';
+      _errorMessage = 'Error loading tickets: $e';
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  /// Cambia il periodo e ricarica
+  /// Changes the period and reloads
   Future<void> changePeriod(TicketPeriod period) async {
     if (period == _selectedPeriod) return;
     await loadTickets(period: period);
   }
 
-  /// Toggle filtro "I miei ticket"
+  /// Toggles the "my tickets" filter
   void toggleMyTickets() {
     _myTicketsOnly = !_myTicketsOnly;
     _applyFilters();
     notifyListeners();
   }
 
-  /// Cerca ticket
+  /// Searches tickets
   Future<void> searchTickets(String query) async {
     _searchQuery = query;
 
@@ -154,21 +154,21 @@ class TicketProvider with ChangeNotifier {
       final result = await _apiService!.searchTickets(query);
       _filteredTickets = _parseTickets(result);
     } catch (e) {
-      _errorMessage = 'Errore nella ricerca: $e';
+      _errorMessage = 'Error searching tickets: $e';
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  /// Filtra per stato
+  /// Filters tickets by status
   void filterByStatus(String status) {
     _statusFilter = status;
     _applyFilters();
     notifyListeners();
   }
 
-  /// Applica i filtri correnti
+  /// Applies the current filters
   void _applyFilters() {
     if (_statusFilter == 'all' && _searchQuery.isEmpty && !_myTicketsOnly) {
       _filteredTickets = List.from(_tickets);
@@ -186,7 +186,7 @@ class TicketProvider with ChangeNotifier {
       }).toList();
     }
 
-    // Ricalcola i conteggi in base ai filtri attivi
+    // Recalculate counts based on active filters
     _statusCounts = {};
     final source = _myTicketsOnly ? _filteredTickets : _tickets;
     for (final ticket in source) {
@@ -195,7 +195,7 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Recupera il dettaglio di un ticket
+  /// Retrieves the detail of a ticket
   Future<Ticket?> getTicketDetail(String ticketId) async {
     if (_apiService == null) return null;
 
@@ -204,13 +204,13 @@ class TicketProvider with ChangeNotifier {
       final tickets = _parseTickets(result);
       return tickets.isNotEmpty ? tickets.first : null;
     } catch (e) {
-      _errorMessage = 'Errore nel caricamento del dettaglio: $e';
+      _errorMessage = 'Error loading ticket details: $e';
       notifyListeners();
       return null;
     }
   }
 
-  /// Recupera i log di un ticket (pubblici, privati e attività)
+  /// Retrieves ticket logs (public, private, and activity)
   Future<List<TicketLog>> getTicketLogs(String ticketId) async {
     if (_apiService == null) return [];
 
@@ -219,13 +219,13 @@ class TicketProvider with ChangeNotifier {
 
       final logs = <TicketLog>[];
 
-      // Parsa il public_log e private_log dal risultato dei log
+      // Parse public_log and private_log from the log result
       final logObjects = logResult['objects'] as Map<String, dynamic>?;
       if (logObjects != null && logObjects.isNotEmpty) {
         final first = logObjects.values.first as Map<String, dynamic>;
         final fields = first['fields'] as Map<String, dynamic>? ?? {};
 
-        // Parsa il public_log
+        // Parse the public_log
         final publicLog = fields['public_log'];
         if (publicLog is Map<String, dynamic>) {
           final entries = publicLog['entries'] as List<dynamic>?;
@@ -238,7 +238,7 @@ class TicketProvider with ChangeNotifier {
           }
         }
 
-        // Parsa il private_log
+        // Parse the private_log
         final privateLog = fields['private_log'];
         if (privateLog is Map<String, dynamic>) {
           final entries = privateLog['entries'] as List<dynamic>?;
@@ -252,11 +252,11 @@ class TicketProvider with ChangeNotifier {
         }
       }
 
-      // Parsa le attività (CMDBChangeOp) — fault-tolerant
+      // Parse activities (CMDBChangeOp) — fault-tolerant
       try {
         final historyRecords = await _apiService!.getTicketHistory(ticketId);
 
-        // Mappa attcode → classe iTop per risolvere gli ID
+        // Map attcode → iTop class to resolve IDs
         const attcodeToClass = <String, String>{
           'agent_id': 'Person',
           'caller_id': 'Person',
@@ -266,7 +266,7 @@ class TicketProvider with ChangeNotifier {
           'servicesubcategory_id': 'ServiceSubcategory',
         };
 
-        // Raccoglie tutti gli ID da risolvere, raggruppati per classe
+        // Gather all IDs to resolve, grouped by class
         final idsToResolve = <String, Set<String>>{};
         for (final record in historyRecords) {
           if (record['class'] == 'CMDBChangeOpSetAttributeScalar') {
@@ -287,7 +287,7 @@ class TicketProvider with ChangeNotifier {
           }
         }
 
-        // Risolve i nomi in batch (una chiamata per classe)
+        // Resolve names in batch (one call per class)
         final resolvedNames = <String, String>{};
         final resolveFutures = idsToResolve.entries.map((e) async {
           final names = await _apiService!.resolveObjectNames(e.key, e.value);
@@ -301,10 +301,10 @@ class TicketProvider with ChangeNotifier {
           logs.add(TicketLog.fromChangeOp(changeClass, fields, resolvedNames));
         }
       } catch (_) {
-        // Se CMDBChangeOp non è accessibile, ignora e mostra solo i log
+        // If CMDBChangeOp is unavailable, ignore and show only logs
       }
 
-      // Ordina tutti i log per data decrescente
+      // Sort all logs by date descending
       logs.sort((a, b) => b.date.compareTo(a.date));
 
       return logs;
@@ -313,14 +313,14 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Parsa la risposta JSON e restituisce una lista di Ticket
+  /// Parses the JSON response and returns a list of tickets
   List<Ticket> _parseTickets(Map<String, dynamic> result) {
     final objects = result['objects'] as Map<String, dynamic>?;
     if (objects == null) return [];
 
     final tickets = objects.entries.map((entry) {
       final key = entry.key.toString();
-      // Estrai l'id numerico dalla chiave (es. "UserRequest::123")
+      // Extract numeric id from the key (e.g. "UserRequest::123")
       final id = key.contains('::') ? key.split('::').last : key;
       return Ticket.fromJson(id, entry.value as Map<String, dynamic>);
     }).toList();
@@ -328,7 +328,7 @@ class TicketProvider with ChangeNotifier {
     return tickets;
   }
 
-  /// Ordina la lista di ticket in base al criterio selezionato
+  /// Sorts the ticket list by the selected criterion
   void _sortTickets(List<Ticket> list) {
     list.sort((a, b) {
       int result;
@@ -350,7 +350,7 @@ class TicketProvider with ChangeNotifier {
     });
   }
 
-  /// Valore numerico per ordinamento priorità (1=critical, 4=low)
+  /// Numeric value for priority sorting (1=critical, 4=low)
   static int _priorityValue(String priority) {
     switch (priority.toLowerCase()) {
       case 'critical' || 'critica':
@@ -366,7 +366,7 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Cambia l'ordinamento e riapplica ai ticket correnti
+  /// Changes the sort order and reapplies it to the current tickets
   void changeSortOrder(TicketSortOrder order) {
     if (order == _sortOrder) return;
     _sortOrder = order;
@@ -377,7 +377,7 @@ class TicketProvider with ChangeNotifier {
 
   // ==================== AZIONI TICKET ====================
 
-  /// Aggiunge una entry al log pubblico
+  /// Adds a public log entry
   Future<bool> addPublicLog(String ticketId, String message) async {
     if (_apiService == null) return false;
     try {
@@ -390,7 +390,7 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Aggiunge una entry al log privato
+  /// Adds a private log entry
   Future<bool> addPrivateLog(String ticketId, String message) async {
     if (_apiService == null) return false;
     try {
@@ -403,7 +403,7 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Applica uno stimulus (transizione di stato)
+  /// Applies a stimulus (state transition)
   Future<bool> applyStimulus(
     String ticketId,
     String stimulus, {
@@ -420,7 +420,7 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Recupera i servizi disponibili
+  /// Retrieves available services
   Future<List<Map<String, dynamic>>> getServices({String? orgId}) async {
     if (_apiService == null) return [];
     try {
@@ -430,7 +430,7 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Recupera le sotto-categorie di un servizio
+  /// Retrieves service subcategories
   Future<List<Map<String, dynamic>>> getServiceSubcategories(
       String serviceId) async {
     if (_apiService == null) return [];
@@ -441,7 +441,7 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Recupera la lista dei team
+  /// Retrieves the team list
   Future<List<Map<String, dynamic>>> getTeams() async {
     if (_apiService == null) return [];
     try {
@@ -451,7 +451,7 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Recupera i membri di un team
+  /// Retrieves team members
   Future<List<Map<String, dynamic>>> getTeamMembers(String teamId) async {
     if (_apiService == null) return [];
     try {
@@ -461,7 +461,7 @@ class TicketProvider with ChangeNotifier {
     }
   }
 
-  /// Reset del provider
+  /// Resets the provider
   void reset() {
     _tickets = [];
     _filteredTickets = [];

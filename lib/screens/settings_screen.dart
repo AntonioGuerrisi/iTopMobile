@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
+import '../l10n/app_strings.dart';
 import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 
@@ -13,7 +14,7 @@ class SettingsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Impostazioni'),
+        title: const Text(AppStrings.settings),
       ),
       body: ListView(
         padding: const EdgeInsets.all(16),
@@ -89,13 +90,13 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         ListTile(
                           leading: const Icon(Icons.info_outline),
-                          title: const Text('Versione'),
+                          title: const Text(AppStrings.version),
                           subtitle: Text(version),
                         ),
                         const Divider(height: 1),
                         ListTile(
                           leading: const Icon(Icons.build_outlined),
-                          title: const Text('Build'),
+                          title: const Text(AppStrings.build),
                           subtitle: Text(buildNumber),
                         ),
                       ],
@@ -105,7 +106,7 @@ class SettingsScreen extends StatelessWidget {
                 const Divider(height: 1),
                 ListTile(
                   leading: const Icon(Icons.dns),
-                  title: const Text('Server'),
+                  title: const Text(AppStrings.server),
                   subtitle: Text(auth.serverUrl),
                 ),
                 const Divider(height: 1),
@@ -126,7 +127,7 @@ class SettingsScreen extends StatelessWidget {
               onPressed: () => _confirmLogout(context),
               icon: const Icon(Icons.logout, color: Colors.red),
               label: const Text(
-                'Esci',
+                AppStrings.signOut,
                 style: TextStyle(color: Colors.red),
               ),
               style: OutlinedButton.styleFrom(
@@ -147,12 +148,12 @@ class SettingsScreen extends StatelessWidget {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Conferma'),
-        content: const Text('Vuoi davvero uscire?'),
+        title: const Text(AppStrings.confirm),
+        content: const Text(AppStrings.confirmSignOut),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Annulla'),
+            child: const Text(AppStrings.cancel),
           ),
           TextButton(
             onPressed: () {
@@ -160,7 +161,7 @@ class SettingsScreen extends StatelessWidget {
               context.read<AuthProvider>().logout();
             },
             child: const Text(
-              'Esci',
+              AppStrings.signOut,
               style: TextStyle(color: Colors.red),
             ),
           ),

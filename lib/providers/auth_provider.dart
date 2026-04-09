@@ -3,7 +3,7 @@ import '../services/itop_api_service.dart';
 import '../services/storage_service.dart';
 import '../services/certificate_pinning_service.dart';
 
-/// Provider per la gestione dell'autenticazione
+/// Provider for authentication management
 class AuthProvider with ChangeNotifier {
   ITopApiService? _apiService;
   final StorageService _storageService = StorageService();
@@ -31,7 +31,7 @@ class AuthProvider with ChangeNotifier {
     _tryAutoLogin();
   }
 
-  /// Tenta il login automatico con credenziali salvate
+  /// Attempts auto-login with saved credentials
   Future<void> _tryAutoLogin() async {
     _isLoading = true;
     notifyListeners();
@@ -48,14 +48,14 @@ class AuthProvider with ChangeNotifier {
         );
       }
     } catch (_) {
-      // Auto-login fallito, l'utente dovrà fare login manualmente
+      // Auto-login failed; the user must log in manually
     } finally {
       _isLoading = false;
       notifyListeners();
     }
   }
 
-  /// Effettua il login a iTop
+  /// Performs login to iTop
   Future<bool> login({
     required String serverUrl,
     required String username,
@@ -73,7 +73,7 @@ class AuthProvider with ChangeNotifier {
           ? serverUrl.substring(0, serverUrl.length - 1)
           : serverUrl;
 
-      // Verifica il certificato del server (TOFU pinning)
+      // Verify the server certificate (TOFU pinning)
       await _pinningService.verifyServerCertificate(normalizedUrl);
 
       _apiService = ITopApiService(
@@ -89,10 +89,10 @@ class AuthProvider with ChangeNotifier {
         _serverUrl = normalizedUrl;
         _username = username;
 
-        // Recupera info utente corrente
+        // Fetch current user info
         _currentUser = await _apiService!.getCurrentUser();
 
-        // Salva credenziali se richiesto
+        // Save credentials if requested
         if (rememberMe) {
           await _storageService.saveCredentials(
             serverUrl: normalizedUrl,
@@ -101,7 +101,7 @@ class AuthProvider with ChangeNotifier {
           );
         }
       } else {
-        _errorMessage = 'Credenziali non valide o server non raggiungibile';
+        _errorMessage = 'Invalid credentials or server unavailable';
         _apiService = null;
       }
 
@@ -111,10 +111,10 @@ class AuthProvider with ChangeNotifier {
           e.toString().contains('CertificatePinningException')) {
         _isCertificateError = true;
         _errorMessage =
-            'Errore certificato SSL: il certificato del server potrebbe '
-            'essere cambiato. Prova a resettare il pin del certificato.';
+            'SSL certificate error: the server certificate may have changed. '
+            'Try resetting the certificate pin.';
       } else {
-        _errorMessage = 'Errore di connessione: $e';
+        _errorMessage = 'Connection error: $e';
       }
       _apiService = null;
       return false;
@@ -124,7 +124,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  /// Effettua il logout
+  /// Performs logout
   Future<void> logout() async {
     _isAuthenticated = false;
     _apiService = null;
@@ -136,7 +136,7 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Resetta il pin del certificato per il server corrente
+  /// Resets the certificate pin for the current server
   Future<void> resetCertificatePin() async {
     final uri = Uri.parse(_serverUrl);
     await _pinningService.resetPin(uri.host);
@@ -145,7 +145,7 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  /// Pulisce il messaggio di errore
+  /// Clears the error message
   void clearError() {
     _errorMessage = null;
     notifyListeners();

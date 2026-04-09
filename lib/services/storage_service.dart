@@ -1,7 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Servizio per salvare in modo sicuro le credenziali dell'utente
+/// Service for securely storing user credentials
 class StorageService {
   static const _keyServerUrl = 'itop_server_url';
   static const _keyUsername = 'itop_username';
@@ -10,7 +10,7 @@ class StorageService {
 
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
-  /// Salva le credenziali
+  /// Saves credentials
   Future<void> saveCredentials({
     required String serverUrl,
     required String username,
@@ -23,7 +23,7 @@ class StorageService {
     await _secureStorage.write(key: _keyPassword, value: password);
   }
 
-  /// Carica le credenziali salvate
+  /// Loads saved credentials
   Future<Map<String, String>?> loadCredentials() async {
     final prefs = await SharedPreferences.getInstance();
     final rememberMe = prefs.getBool(_keyRememberMe) ?? false;
@@ -44,7 +44,7 @@ class StorageService {
     return null;
   }
 
-  /// Cancella le credenziali
+  /// Clears credentials
   Future<void> clearCredentials() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_keyServerUrl);
@@ -53,7 +53,7 @@ class StorageService {
     await _secureStorage.delete(key: _keyPassword);
   }
 
-  /// Controlla se ci sono credenziali salvate
+  /// Checks whether saved credentials exist
   Future<bool> hasCredentials() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool(_keyRememberMe) ?? false;
@@ -63,17 +63,17 @@ class StorageService {
 
   static const _pinPrefix = 'cert_pin_';
 
-  /// Salva il fingerprint SHA-256 del certificato per un host
+  /// Saves the SHA-256 certificate fingerprint for a host
   Future<void> saveCertificatePin(String host, String fingerprint) async {
     await _secureStorage.write(key: '$_pinPrefix$host', value: fingerprint);
   }
 
-  /// Carica il fingerprint memorizzato per un host
+  /// Loads the stored fingerprint for a host
   Future<String?> loadCertificatePin(String host) async {
     return await _secureStorage.read(key: '$_pinPrefix$host');
   }
 
-  /// Elimina il pin memorizzato per un host (es. dopo rinnovo certificato)
+  /// Deletes the stored pin for a host (e.g. after certificate renewal)
   Future<void> deleteCertificatePin(String host) async {
     await _secureStorage.delete(key: '$_pinPrefix$host');
   }
